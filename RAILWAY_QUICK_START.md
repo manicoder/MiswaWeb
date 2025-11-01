@@ -3,35 +3,30 @@
 ## Pre-Deployment Checklist
 
 - [ ] Code is pushed to GitHub
-- [ ] MongoDB Atlas account created (or plan to use Railway MongoDB)
 - [ ] Railway account created
+- [ ] No MongoDB account needed - Railway provides it!
 
 ---
 
 ## Quick Steps
 
-### 1. MongoDB Setup (5 minutes)
-- [ ] Create MongoDB Atlas cluster
-- [ ] Create database user
-- [ ] Whitelist IP: `0.0.0.0/0`
-- [ ] Copy connection string
-
-### 2. Railway Project (2 minutes)
+### 1. Railway Project & MongoDB (3 minutes)
 - [ ] Create new Railway project
-- [ ] Connect GitHub repository
-- [ ] Cancel initial auto-deploy
+- [ ] Click "New" → "Database" → "MongoDB"
+- [ ] Wait for MongoDB to deploy (1-2 minutes)
+- [ ] Railway automatically creates `MONGO_URL` variable
 
-### 3. Backend Service (5 minutes)
+### 2. Backend Service (5 minutes)
 - [ ] Add new service from GitHub
 - [ ] Set Root Directory: `backend`
 - [ ] Set Start Command: `uvicorn server:app --host 0.0.0.0 --port $PORT`
 - [ ] Add Environment Variables:
-  - `MONGO_URL` = (your MongoDB connection string)
+  - `MONGO_URL` = (automatically available from MongoDB service - check Variables tab)
   - `DB_NAME` = `miswa_international`
   - `CORS_ORIGINS` = (will update after frontend)
 - [ ] Copy backend URL
 
-### 4. Frontend Service (5 minutes)
+### 3. Frontend Service (5 minutes)
 - [ ] Add new service from GitHub
 - [ ] Set Root Directory: `frontend`
 - [ ] Set Build Command: `yarn install && yarn build`
@@ -40,7 +35,7 @@
   - `REACT_APP_BACKEND_URL` = (your backend Railway URL)
 - [ ] Copy frontend URL
 
-### 5. Final Configuration (2 minutes)
+### 4. Final Configuration (2 minutes)
 - [ ] Update backend `CORS_ORIGINS` with frontend URL
 - [ ] Test backend at: `https://your-backend.railway.app/docs`
 - [ ] Test frontend at: `https://your-frontend.railway.app`
@@ -51,7 +46,7 @@
 
 ### Backend
 ```
-MONGO_URL=mongodb+srv://user:pass@cluster.mongodb.net/miswa_international?retryWrites=true&w=majority
+MONGO_URL (auto-provided by Railway MongoDB service)
 DB_NAME=miswa_international
 CORS_ORIGINS=https://your-frontend.railway.app
 PORT (auto-provided by Railway)
@@ -69,10 +64,11 @@ PORT (auto-provided by Railway)
 
 | Problem | Solution |
 |---------|----------|
-| Backend won't start | Check MongoDB connection string |
+| Backend won't start | Check that MongoDB service is running, verify MONGO_URL is available |
 | CORS errors | Update CORS_ORIGINS in backend |
 | Frontend blank page | Check REACT_APP_BACKEND_URL |
 | Build fails | Check logs, verify dependencies |
+| MongoDB not connecting | Ensure MongoDB service is in same project as backend |
 
 ---
 

@@ -6,7 +6,7 @@ This guide will walk you through deploying the Miswa International application o
 
 1. **Railway Account**: Sign up at [railway.app](https://railway.app) (free tier available)
 2. **GitHub Account**: Your code should be in a GitHub repository
-3. **MongoDB Atlas Account** (recommended) OR use Railway's MongoDB service
+3. **No separate MongoDB account needed** - We'll use Railway's MongoDB service (included)
 
 ---
 
@@ -32,47 +32,55 @@ git push origin main
 
 ---
 
-## 🔧 Step 2: Create MongoDB Database
+## 🔧 Step 2: Create MongoDB Database on Railway
 
-### Option A: Use MongoDB Atlas (Recommended)
+### Using Railway MongoDB Service (Recommended & Easy)
 
+1. **Create Railway Project first** (see Step 3 below)
+2. Once your project is created, in the Railway dashboard:
+   - Click **"New"** → **"Database"** → **"MongoDB"**
+3. Railway will automatically:
+   - Provision a MongoDB instance
+   - Generate connection credentials
+   - Create environment variables automatically
+4. **Important**: Railway will create a `MONGO_URL` variable automatically. You can view it in:
+   - Click on the MongoDB service
+   - Go to **Variables** tab
+   - You'll see `MONGO_URL` with the connection string
+5. Railway's MongoDB connection string looks like:
+   ```
+   mongodb://mongo:27017
+   ```
+   or
+   ```
+   mongodb://mongo.railway.internal:27017
+   ```
+   
+**Note**: Railway automatically creates the `MONGO_URL` variable and shares it with other services in the same project. This makes connecting your backend super easy!
+
+### Alternative: Use MongoDB Atlas (Only if needed)
+
+If you prefer MongoDB Atlas for any reason:
 1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a free account (if you don't have one)
-3. Create a new cluster (FREE tier available)
-4. Create a database user:
-   - Database Access → Add New Database User
-   - Username: `miswa_user` (or your choice)
-   - Password: Generate a secure password (save it!)
-   - User Privileges: Read and write to any database
-5. Whitelist IP addresses:
-   - Network Access → Add IP Address
-   - Click "Allow Access from Anywhere" (0.0.0.0/0)
-6. Get connection string:
-   - Clusters → Connect → Connect your application
-   - Copy the connection string (looks like: `mongodb+srv://username:password@cluster.mongodb.net/...`)
-   - Replace `<password>` with your actual password
-   - Add database name at the end: `?retryWrites=true&w=majority&appName=Cluster0` → `miswa_international?retryWrites=true&w=majority`
-
-**Save this connection string** - you'll need it in Step 4.
-
-### Option B: Use Railway MongoDB Service
-
-1. In Railway dashboard, click "New Project"
-2. Click "New" → "Database" → "MongoDB"
-3. Railway will provision MongoDB and provide connection details automatically
+2. Create a free account and cluster
+3. Create database user and whitelist IPs
+4. Copy connection string and use it as `MONGO_URL` in backend variables
 
 ---
 
-## 🚂 Step 3: Create Railway Project
+## 🚂 Step 3: Create Railway Project & MongoDB
 
 1. Go to [railway.app](https://railway.app) and sign in
 2. Click **"New Project"**
-3. Select **"Deploy from GitHub repo"**
-4. Authorize Railway to access your GitHub if prompted
-5. Select your **Miswa-main repository**
-6. Click **"Deploy Now"**
+3. Select **"Empty Project"** (or "Deploy from GitHub repo" - we'll add services manually)
+4. Give your project a name (e.g., "Miswa International")
+5. **Add MongoDB Database**:
+   - In your new project, click **"New"** → **"Database"** → **"MongoDB"**
+   - Railway will provision MongoDB automatically
+   - Wait for it to deploy (takes 1-2 minutes)
+   - Once ready, Railway creates `MONGO_URL` variable automatically
 
-Railway will create a project and start deploying. **Cancel this initial deployment** - we'll configure services properly next.
+**Note**: The `MONGO_URL` variable will be available to all services in this project automatically!
 
 ---
 
@@ -95,12 +103,11 @@ Railway will create a project and start deploying. **Cancel this initial deploym
 ### 4.3 Set Backend Environment Variables
 
 1. In the backend service, go to **Variables** tab
-2. Click **"New Variable"** and add these:
-
-```
-MONGO_URL = mongodb+srv://username:password@cluster.mongodb.net/miswa_international?retryWrites=true&w=majority
-```
-*(Replace with your actual MongoDB Atlas connection string)*
+2. **MongoDB Connection** (Easiest option):
+   - Railway's MongoDB service automatically shares `MONGO_URL` variable
+   - If you see `MONGO_URL` already there (from MongoDB service), you're good!
+   - If not, add it manually by referencing the MongoDB service's variable
+3. **Add these variables**:
 
 ```
 DB_NAME = miswa_international
@@ -109,9 +116,12 @@ DB_NAME = miswa_international
 ```
 CORS_ORIGINS = https://your-frontend-domain.railway.app
 ```
-*(We'll update this after frontend is deployed)*
+*(We'll update this after frontend is deployed - leave blank for now or use placeholder)*
 
-**Note**: Railway automatically provides a `PORT` variable - don't override it.
+**Note**: 
+- Railway automatically provides a `PORT` variable - don't override it
+- Railway automatically provides `MONGO_URL` from MongoDB service - usually you don't need to set it manually
+- If `MONGO_URL` is not automatically available, check that both services are in the same Railway project
 
 ### 4.4 Deploy Backend
 
@@ -214,13 +224,14 @@ REACT_APP_BACKEND_URL = https://your-backend-name.railway.app
 
 ---
 
-## 🔧 Step 8: Configure MongoDB (If Using Atlas)
+## 🔧 Step 8: Verify MongoDB Connection
 
-Ensure your MongoDB Atlas connection is working:
+Ensure your MongoDB connection is working:
 
-1. In Atlas dashboard, verify IP whitelist includes Railway's IPs
-2. Check backend logs in Railway for MongoDB connection errors
-3. Test connection by accessing `/api/brands` endpoint
+1. Check that MongoDB service is running in Railway (should show "Active" status)
+2. Verify `MONGO_URL` is available in backend service variables (auto-shared from MongoDB service)
+3. Check backend logs in Railway for MongoDB connection errors
+4. Test connection by accessing `/api/brands` endpoint - should return data or empty array
 
 ---
 
@@ -239,9 +250,11 @@ Ensure your MongoDB Atlas connection is working:
 
 **Problem**: MongoDB connection failed
 - **Solution**: 
-  - Verify MongoDB Atlas IP whitelist
-  - Check connection string format
-  - Ensure password is URL-encoded if it contains special characters
+  - Verify MongoDB service is running in Railway (check service status)
+  - Ensure `MONGO_URL` variable is available in backend service (should be auto-shared from MongoDB service)
+  - Check that both MongoDB and Backend services are in the same Railway project
+  - Check backend logs for specific MongoDB connection errors
+  - If using Railway MongoDB, connection is usually automatic - no IP whitelisting needed
 
 ### Frontend Issues
 
@@ -316,7 +329,7 @@ Ensure your MongoDB Atlas connection is working:
 
 1. **Never commit `.env` files** to GitHub
 2. **Use Railway's secret variables** for sensitive data
-3. **Keep MongoDB credentials secure**
+3. **Railway MongoDB credentials are automatically secured** - they're only visible within your project
 4. **Regularly update dependencies**
 5. **Use HTTPS** (Railway provides this automatically)
 
