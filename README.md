@@ -123,7 +123,7 @@ Miswa-main/
    **For MongoDB Atlas** (cloud):
    ```env
    MONGO_URL=mongodb+srv://username:password@cluster.mongodb.net/?retryWrites=true&w=majority
-   DB_NAME=miswa_international
+   DB_NAME=miswa
    CORS_ORIGINS=http://localhost:3000
    ```
 
