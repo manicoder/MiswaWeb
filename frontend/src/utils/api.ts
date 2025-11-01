@@ -1,0 +1,121 @@
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+export const API = `${BACKEND_URL}/api`;
+
+// Log for debugging (remove in production)
+if (!process.env.REACT_APP_BACKEND_URL) {
+  console.warn('⚠️ REACT_APP_BACKEND_URL not set, using default: http://localhost:8000');
+}
+console.log('🔗 Backend API URL:', API);
+
+export const api: AxiosInstance = axios.create({
+  baseURL: API,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Type definitions
+export interface Brand {
+  _id?: string;
+  name: string;
+  description: string;
+  logo?: string;
+  website?: string;
+}
+
+export interface Catalog {
+  _id?: string;
+  name: string;
+  description?: string;
+  fileUrl?: string;
+  brandId?: string;
+  createdAt?: string;
+}
+
+export interface Blog {
+  _id?: string;
+  title: string;
+  slug?: string;
+  content: string;
+  excerpt?: string;
+  author?: string;
+  publishedAt?: string;
+  isPublished?: boolean;
+  featuredImage?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Career {
+  _id?: string;
+  title: string;
+  department?: string;
+  location?: string;
+  type?: string;
+  description: string;
+  requirements?: string[];
+  isActive?: boolean;
+  createdAt?: string;
+}
+
+export interface Inquiry {
+  _id?: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  message: string;
+  createdAt?: string;
+}
+
+export interface CompanyInfo {
+  _id?: string;
+  name: string;
+  mission?: string;
+  vision?: string;
+  values?: string[];
+  contactEmail?: string;
+  contactPhone?: string;
+  address?: string;
+}
+
+// Brands
+export const getBrands = (): Promise<AxiosResponse<Brand[]>> => api.get('/brands');
+export const createBrand = (data: Brand): Promise<AxiosResponse<Brand>> => api.post('/brands', data);
+export const updateBrand = (id: string, data: Partial<Brand>): Promise<AxiosResponse<Brand>> => api.put(`/brands/${id}`, data);
+export const deleteBrand = (id: string): Promise<AxiosResponse<void>> => api.delete(`/brands/${id}`);
+
+// Catalogs
+export const getCatalogs = (): Promise<AxiosResponse<Catalog[]>> => api.get('/catalogs');
+export const createCatalog = (data: Partial<Catalog>): Promise<AxiosResponse<Catalog>> => api.post('/catalogs', data);
+export const updateCatalog = (id: string, data: Partial<Catalog>): Promise<AxiosResponse<Catalog>> => api.put(`/catalogs/${id}`, data);
+export const deleteCatalog = (id: string): Promise<AxiosResponse<void>> => api.delete(`/catalogs/${id}`);
+
+// Blogs
+export const getBlogs = (publishedOnly: boolean = true): Promise<AxiosResponse<Blog[]>> => api.get(`/blogs?published_only=${publishedOnly}`);
+export const getBlogBySlug = (slug: string): Promise<AxiosResponse<Blog>> => api.get(`/blogs/${slug}`);
+export const createBlog = (data: Partial<Blog>): Promise<AxiosResponse<Blog>> => api.post('/blogs', data);
+export const updateBlog = (id: string, data: Partial<Blog>): Promise<AxiosResponse<Blog>> => api.put(`/blogs/${id}`, data);
+export const deleteBlog = (id: string): Promise<AxiosResponse<void>> => api.delete(`/blogs/${id}`);
+
+// Careers
+export const getCareers = (activeOnly: boolean = true): Promise<AxiosResponse<Career[]>> => api.get(`/careers?active_only=${activeOnly}`);
+export const createCareer = (data: Partial<Career>): Promise<AxiosResponse<Career>> => api.post('/careers', data);
+export const updateCareer = (id: string, data: Partial<Career>): Promise<AxiosResponse<Career>> => api.put(`/careers/${id}`, data);
+export const deleteCareer = (id: string): Promise<AxiosResponse<void>> => api.delete(`/careers/${id}`);
+
+// Inquiries
+export const createInquiry = (data: Partial<Inquiry>): Promise<AxiosResponse<Inquiry>> => api.post('/inquiries', data);
+export const getInquiries = (): Promise<AxiosResponse<Inquiry[]>> => api.get('/inquiries');
+export const exportInquiries = (): string => `${API}/inquiries/export`;
+export const deleteInquiry = (id: string): Promise<AxiosResponse<void>> => api.delete(`/inquiries/${id}`);
+
+// Company Info
+export const getCompanyInfo = (): Promise<AxiosResponse<CompanyInfo>> => api.get('/company-info');
+export const updateCompanyInfo = (data: Partial<CompanyInfo>): Promise<AxiosResponse<CompanyInfo>> => api.put('/company-info', data);
+
+// MyLittleTales Products
+export const getMyLittleTalesProducts = (): Promise<AxiosResponse<any[]>> => api.get('/mylittletales/products');
+
