@@ -9,6 +9,16 @@ import { getBrands, type Brand } from '../utils/api';
 const Home: React.FC = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Safe setter that always ensures brands is an array
+  const setBrandsSafe = (data: any) => {
+    if (Array.isArray(data)) {
+      setBrands(data);
+    } else {
+      console.warn('Attempted to set non-array brands data:', data);
+      setBrands([]);
+    }
+  };
 
   useEffect(() => {
     fetchBrands();
@@ -18,13 +28,40 @@ const Home: React.FC = () => {
     try {
       setLoading(true);
       const response = await getBrands();
-      // Ensure response.data is an array
-      const brandsData = Array.isArray(response.data) ? response.data : [];
-      setBrands(brandsData);
+      console.log('API Response:', response);
+      console.log('Response data:', response.data);
+      console.log('Is array?', Array.isArray(response.data));
+      
+      // Handle different response structures
+      let brandsData: Brand[] = [];
+      
+      if (response && response.data) {
+        if (Array.isArray(response.data)) {
+          brandsData = response.data;
+        } else if (Array.isArray(response.data.data)) {
+          // Handle nested response
+          brandsData = response.data.data;
+        } else if (typeof response.data === 'object') {
+          // Single object, wrap in array
+          brandsData = [response.data];
+        }
+      } else if (Array.isArray(response)) {
+        // Response itself is an array
+        brandsData = response;
+      }
+      
+      // Final safety check
+      if (!Array.isArray(brandsData)) {
+        console.warn('Brands data is not an array, defaulting to empty array:', brandsData);
+        brandsData = [];
+      }
+      
+      console.log('Final brands data:', brandsData);
+      setBrandsSafe(brandsData);
     } catch (error) {
       console.error('Error fetching brands:', error);
       // Set empty array on error to prevent .map() errors
-      setBrands([]);
+      setBrandsSafe([]);
     } finally {
       setLoading(false);
     }
@@ -188,12 +225,12 @@ const Home: React.FC = () => {
               <div className="col-span-2 text-center py-12">
                 <p className="text-gray-500">Loading brands...</p>
               </div>
-            ) : brands.length === 0 ? (
+            ) : !Array.isArray(brands) || brands.length === 0 ? (
               <div className="col-span-2 text-center py-12">
                 <p className="text-gray-500">No brands available at the moment.</p>
               </div>
             ) : (
-              brands.map((brand, index) => (
+              Array.isArray(brands) && brands.map((brand, index) => (
               <motion.div
                 key={brand.id || brand._id || index}
                 initial={{ opacity: 0, y: 20 }}
