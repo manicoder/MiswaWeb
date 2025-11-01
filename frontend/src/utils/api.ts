@@ -18,11 +18,16 @@ export const api: AxiosInstance = axios.create({
 
 // Type definitions
 export interface Brand {
-  _id?: string;
+  id?: string;
+  _id?: string; // Keep for backward compatibility
   name: string;
+  tagline?: string;
   description: string;
   logo?: string;
+  logo_url?: string; // Backend uses logo_url
+  image_url?: string;
   website?: string;
+  created_at?: string;
 }
 
 export interface Catalog {

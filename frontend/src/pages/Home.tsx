@@ -8,6 +8,7 @@ import { getBrands, type Brand } from '../utils/api';
 
 const Home: React.FC = () => {
   const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchBrands();
@@ -15,10 +16,17 @@ const Home: React.FC = () => {
 
   const fetchBrands = async () => {
     try {
+      setLoading(true);
       const response = await getBrands();
-      setBrands(response.data);
+      // Ensure response.data is an array
+      const brandsData = Array.isArray(response.data) ? response.data : [];
+      setBrands(brandsData);
     } catch (error) {
       console.error('Error fetching brands:', error);
+      // Set empty array on error to prevent .map() errors
+      setBrands([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -176,9 +184,18 @@ const Home: React.FC = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8" data-testid="brands-grid">
-            {brands.map((brand, index) => (
+            {loading ? (
+              <div className="col-span-2 text-center py-12">
+                <p className="text-gray-500">Loading brands...</p>
+              </div>
+            ) : brands.length === 0 ? (
+              <div className="col-span-2 text-center py-12">
+                <p className="text-gray-500">No brands available at the moment.</p>
+              </div>
+            ) : (
+              brands.map((brand, index) => (
               <motion.div
-                key={brand._id || index}
+                key={brand.id || brand._id || index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -188,14 +205,18 @@ const Home: React.FC = () => {
               >
                 <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                   <img
-                    src={brand.logo || brand.website}
+                    src={brand.logo_url || brand.logo || brand.website || 'https://via.placeholder.com/400x300?text=' + encodeURIComponent(brand.name)}
                     alt={brand.name}
                     className="w-full h-full object-contain p-12 group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => {
+                      // Fallback if image fails to load
+                      e.currentTarget.src = `https://via.placeholder.com/400x300?text=${encodeURIComponent(brand.name)}`;
+                    }}
                   />
                 </div>
                 <div className="p-8">
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">{brand.name}</h3>
-                  <p className="text-coral-500 font-medium mb-4">{brand.name}</p>
+                  <p className="text-coral-500 font-medium mb-4">{brand.tagline || brand.name}</p>
                   <p className="text-gray-600 leading-relaxed mb-6">{brand.description}</p>
                   {brand.website && (
                     <a
@@ -211,7 +232,8 @@ const Home: React.FC = () => {
                   )}
                 </div>
               </motion.div>
-            ))}
+              ))
+            )}
           </div>
 
           <div className="text-center mt-12">
