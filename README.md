@@ -224,15 +224,18 @@ Miswa-main/
 
 ### Railway Deployment
 
-See `RAILWAY_STEP_BY_STEP.md` for detailed Railway deployment instructions.
+**📖 Full Guide**: See [`RAILWAY_DEPLOYMENT.md`](./RAILWAY_DEPLOYMENT.md) for detailed step-by-step instructions.
+
+**⚡ Quick Start**: See [`RAILWAY_QUICK_START.md`](./RAILWAY_QUICK_START.md) for a checklist.
 
 **Quick steps**:
 1. Push code to GitHub
 2. Create Railway project
-3. Deploy backend (Root Directory: `backend`)
-4. Add MongoDB service
+3. Set up MongoDB (Atlas or Railway service)
+4. Deploy backend (Root Directory: `backend`)
 5. Deploy frontend (Root Directory: `frontend`)
 6. Configure environment variables
+7. Update CORS settings
 
 ### Docker Deployment
 
