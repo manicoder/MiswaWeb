@@ -27,9 +27,12 @@ const Home: React.FC = () => {
   const fetchBrands = async () => {
     try {
       setLoading(true);
+      console.log('🔄 Fetching brands from API...');
       const response = await getBrands();
-      console.log('API Response:', response);
-      console.log('Response data:', response.data);
+      console.log('✅ API Response received:', response);
+      console.log('📦 Response data:', response.data);
+      console.log('📦 Response data type:', typeof response.data);
+      console.log('📦 Response data is array?', Array.isArray(response.data));
       
       // Handle different response structures
       let brandsData: Brand[] = [];
@@ -37,31 +40,48 @@ const Home: React.FC = () => {
       
       if (responseData) {
         if (Array.isArray(responseData)) {
-          // Direct array response
+          // Direct array response (most common with FastAPI)
           brandsData = responseData;
+          console.log('✅ Found direct array response with', brandsData.length, 'brands');
         } else if (responseData && typeof responseData === 'object' && Array.isArray(responseData.data)) {
           // Nested response with data property
           brandsData = responseData.data;
+          console.log('✅ Found nested array response with', brandsData.length, 'brands');
         } else if (responseData && typeof responseData === 'object') {
           // Single object, wrap in array
           brandsData = [responseData as Brand];
+          console.log('✅ Found single object, wrapped in array');
+        } else {
+          console.warn('⚠️ Unexpected response data structure:', responseData);
         }
       } else if (Array.isArray(response)) {
         // Response itself is an array
         brandsData = response as Brand[];
+        console.log('✅ Response itself is array with', brandsData.length, 'brands');
+      } else {
+        console.warn('⚠️ No valid data found in response:', response);
       }
       
       // Final safety check - ensure it's always an array
       if (!Array.isArray(brandsData)) {
-        console.warn('Brands data is not an array, defaulting to empty array:', brandsData);
+        console.warn('⚠️ Brands data is not an array, defaulting to empty array:', brandsData);
         brandsData = [];
       }
       
-      console.log('Is array?', Array.isArray(brandsData));
-      console.log('Final brands data:', brandsData);
+      console.log('🎯 Final brands data:', brandsData);
+      console.log('🎯 Number of brands:', brandsData.length);
+      if (brandsData.length > 0) {
+        console.log('🎯 First brand:', brandsData[0]);
+      }
       setBrandsSafe(brandsData);
-    } catch (error) {
-      console.error('Error fetching brands:', error);
+    } catch (error: any) {
+      console.error('❌ Error fetching brands:', error);
+      console.error('❌ Error message:', error?.message);
+      console.error('❌ Error response:', error?.response);
+      if (error?.response) {
+        console.error('❌ Error status:', error.response.status);
+        console.error('❌ Error data:', error.response.data);
+      }
       // Set empty array on error to prevent .map() errors
       setBrandsSafe([]);
     } finally {
@@ -230,6 +250,9 @@ const Home: React.FC = () => {
             ) : !Array.isArray(brands) || brands.length === 0 ? (
               <div className="col-span-2 text-center py-12">
                 <p className="text-gray-500">No brands available at the moment.</p>
+                <p className="text-sm text-gray-400 mt-2">
+                  {loading ? 'Loading...' : `Debug: brands is ${typeof brands}, length: ${Array.isArray(brands) ? brands.length : 'N/A'}`}
+                </p>
               </div>
             ) : (
               Array.isArray(brands) && brands.map((brand, index) => (
