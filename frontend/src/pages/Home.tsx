@@ -30,32 +30,34 @@ const Home: React.FC = () => {
       const response = await getBrands();
       console.log('API Response:', response);
       console.log('Response data:', response.data);
-      console.log('Is array?', Array.isArray(response.data));
       
       // Handle different response structures
       let brandsData: Brand[] = [];
+      const responseData: any = response?.data;
       
-      if (response && response.data) {
-        if (Array.isArray(response.data)) {
-          brandsData = response.data;
-        } else if (Array.isArray(response.data.data)) {
-          // Handle nested response
-          brandsData = response.data.data;
-        } else if (typeof response.data === 'object') {
+      if (responseData) {
+        if (Array.isArray(responseData)) {
+          // Direct array response
+          brandsData = responseData;
+        } else if (responseData && typeof responseData === 'object' && Array.isArray(responseData.data)) {
+          // Nested response with data property
+          brandsData = responseData.data;
+        } else if (responseData && typeof responseData === 'object') {
           // Single object, wrap in array
-          brandsData = [response.data];
+          brandsData = [responseData as Brand];
         }
       } else if (Array.isArray(response)) {
         // Response itself is an array
-        brandsData = response;
+        brandsData = response as Brand[];
       }
       
-      // Final safety check
+      // Final safety check - ensure it's always an array
       if (!Array.isArray(brandsData)) {
         console.warn('Brands data is not an array, defaulting to empty array:', brandsData);
         brandsData = [];
       }
       
+      console.log('Is array?', Array.isArray(brandsData));
       console.log('Final brands data:', brandsData);
       setBrandsSafe(brandsData);
     } catch (error) {
