@@ -13,6 +13,7 @@ import {
   Trash2,
   Link as LinkIcon,
   CreditCard,
+  Share2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
@@ -33,6 +34,7 @@ import CareersManagement from './CareersManagement';
 import CompanyInfoManagement from './CompanyInfoManagement';
 import LinkPagesManagement from './LinkPagesManagement';
 import UPIPaymentManagement from './UPIPaymentManagement';
+import SocialMediaManagement from './SocialMediaManagement';
 
 const AdminDashboard: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
@@ -46,6 +48,7 @@ const AdminDashboard: React.FC = () => {
     { name: 'Careers', path: '/admin/careers', icon: Briefcase },
     { name: 'Link Pages', path: '/admin/link-pages', icon: LinkIcon },
     { name: 'UPI Payment', path: '/admin/upi-payment', icon: CreditCard },
+    { name: 'Social Media', path: '/admin/social-media', icon: Share2 },
     { name: 'Inquiries', path: '/admin/inquiries', icon: Mail },
     { name: 'Company Info', path: '/admin/company', icon: Info },
   ];
@@ -114,6 +117,7 @@ const AdminDashboard: React.FC = () => {
             <Route path="/careers" element={<CareersManagement />} />
             <Route path="/link-pages" element={<LinkPagesManagement />} />
             <Route path="/upi-payment" element={<UPIPaymentManagement />} />
+            <Route path="/social-media" element={<SocialMediaManagement />} />
             <Route path="/inquiries" element={<InquiriesManagement />} />
             <Route path="/company" element={<CompanyInfoManagement />} />
           </Routes>

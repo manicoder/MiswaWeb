@@ -250,6 +250,20 @@ class UPIPaymentInfoUpdate(BaseModel):
     upi_id: Optional[str] = None
     qr_code_url: Optional[str] = None
 
+class SocialMediaLink(BaseModel):
+    icon: str  # Name of lucide-react icon (e.g., "Facebook", "Instagram", "Twitter")
+    title: str
+    url: str
+
+class SocialMediaInfo(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = "social_media_info"
+    links: List[SocialMediaLink] = Field(default_factory=list)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class SocialMediaInfoUpdate(BaseModel):
+    links: Optional[List[SocialMediaLink]] = None
+
 # ==================== BRANDS ====================
 
 @api_router.get("/brands", response_model=List[Brand])
@@ -597,6 +611,35 @@ async def update_upi_payment_info(input: UPIPaymentInfoUpdate):
     if isinstance(info.get('updated_at'), str):
         info['updated_at'] = datetime.fromisoformat(info['updated_at'])
     return UPIPaymentInfo(**info)
+
+# ==================== SOCIAL MEDIA INFO ====================
+
+@api_router.get("/social-media-info", response_model=SocialMediaInfo)
+async def get_social_media_info():
+    info = await db.social_media_info.find_one({"id": "social_media_info"}, {"_id": 0})
+    if not info:
+        # Return default with empty links
+        default_info = SocialMediaInfo(links=[])
+        return default_info
+    if isinstance(info.get('updated_at'), str):
+        info['updated_at'] = datetime.fromisoformat(info['updated_at'])
+    return SocialMediaInfo(**info)
+
+@api_router.put("/social-media-info", response_model=SocialMediaInfo)
+async def update_social_media_info(input: SocialMediaInfoUpdate):
+    update_data = {k: v for k, v in input.model_dump().items() if v is not None}
+    update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    await db.social_media_info.update_one(
+        {"id": "social_media_info"},
+        {"$set": update_data},
+        upsert=True
+    )
+    
+    info = await db.social_media_info.find_one({"id": "social_media_info"}, {"_id": 0})
+    if isinstance(info.get('updated_at'), str):
+        info['updated_at'] = datetime.fromisoformat(info['updated_at'])
+    return SocialMediaInfo(**info)
 
 # ==================== MYLITTLETALES PRODUCTS ====================
 

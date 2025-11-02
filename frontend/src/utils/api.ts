@@ -195,3 +195,19 @@ export interface UPIPaymentInfo {
 export const getUPIPaymentInfo = (): Promise<AxiosResponse<UPIPaymentInfo>> => api.get('/upi-payment-info');
 export const updateUPIPaymentInfo = (data: Partial<UPIPaymentInfo>): Promise<AxiosResponse<UPIPaymentInfo>> => api.put('/upi-payment-info', data);
 
+// Social Media Info
+export interface SocialMediaLink {
+  icon: string;
+  title: string;
+  url: string;
+}
+
+export interface SocialMediaInfo {
+  id?: string;
+  links: SocialMediaLink[];
+  updated_at?: string;
+}
+
+export const getSocialMediaInfo = (): Promise<AxiosResponse<SocialMediaInfo>> => api.get('/social-media-info');
+export const updateSocialMediaInfo = (data: Partial<SocialMediaInfo>): Promise<AxiosResponse<SocialMediaInfo>> => api.put('/social-media-info', data);
+

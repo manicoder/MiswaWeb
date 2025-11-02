@@ -1,8 +1,59 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Youtube,
+  Github,
+  Globe,
+  MessageCircle,
+  Share2,
+  LucideIcon,
+} from 'lucide-react';
+import { getSocialMediaInfo, type SocialMediaLink } from '../utils/api';
+
+// Icon mapping for dynamic icon rendering
+const iconMap: Record<string, LucideIcon> = {
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Youtube,
+  Github,
+  Globe,
+  Mail,
+  MessageCircle,
+  Phone,
+  Share2,
+};
 
 const Footer: React.FC = () => {
+  const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>([]);
+
+  useEffect(() => {
+    const fetchSocialLinks = async () => {
+      try {
+        const response = await getSocialMediaInfo();
+        setSocialLinks(response.data.links || []);
+      } catch (error) {
+        console.error('Failed to fetch social media links:', error);
+        // Fallback to empty array on error
+        setSocialLinks([]);
+      }
+    };
+
+    fetchSocialLinks();
+  }, []);
+
+  const getIcon = (iconName: string): LucideIcon | null => {
+    return iconMap[iconName] || null;
+  };
+
   return (
     <footer data-testid="main-footer" className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -19,18 +70,41 @@ const Footer: React.FC = () => {
               Leading manufacturer and exporter of premium kids' products, specializing in educational toys and children's wear.
             </p>
             <div className="flex space-x-4" data-testid="footer-social-links">
-              <a href="#" className="hover:text-coral-400 transition-colors" data-testid="social-facebook">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="hover:text-coral-400 transition-colors" data-testid="social-twitter">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="hover:text-coral-400 transition-colors" data-testid="social-instagram">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="hover:text-coral-400 transition-colors" data-testid="social-linkedin">
-                <Linkedin className="w-5 h-5" />
-              </a>
+              {socialLinks.length > 0 ? (
+                socialLinks.map((link, index) => {
+                  const IconComponent = getIcon(link.icon);
+                  if (!IconComponent) return null;
+                  return (
+                    <a
+                      key={index}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-coral-400 transition-colors"
+                      data-testid={`social-${link.icon.toLowerCase()}`}
+                      title={link.title}
+                    >
+                      <IconComponent className="w-5 h-5" />
+                    </a>
+                  );
+                })
+              ) : (
+                // Fallback if no links are configured
+                <>
+                  <a href="#" className="hover:text-coral-400 transition-colors" data-testid="social-facebook">
+                    <Facebook className="w-5 h-5" />
+                  </a>
+                  <a href="#" className="hover:text-coral-400 transition-colors" data-testid="social-twitter">
+                    <Twitter className="w-5 h-5" />
+                  </a>
+                  <a href="#" className="hover:text-coral-400 transition-colors" data-testid="social-instagram">
+                    <Instagram className="w-5 h-5" />
+                  </a>
+                  <a href="#" className="hover:text-coral-400 transition-colors" data-testid="social-linkedin">
+                    <Linkedin className="w-5 h-5" />
+                  </a>
+                </>
+              )}
             </div>
           </div>
 
