@@ -6,7 +6,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { getLinkPages, updateLinkPage, type LinkPage } from '../../utils/api';
+import { getLinkPages, updateLinkPage, createLinkPage, type LinkPage } from '../../utils/api';
 import { toast } from 'sonner';
 
 const LinkPagesManagement: React.FC = () => {
@@ -15,6 +15,7 @@ const LinkPagesManagement: React.FC = () => {
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [editingPage, setEditingPage] = useState<LinkPage | null>(null);
   const [formData, setFormData] = useState({
+    brand_slug: '',
     brand_name: '',
     tagline: '',
     description: '',
@@ -54,22 +55,56 @@ const LinkPagesManagement: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!editingPage) return;
     
     try {
-      await updateLinkPage(editingPage.brand_slug, formData);
-      toast.success('Link page updated successfully');
+      if (editingPage) {
+        // Update existing page
+        await updateLinkPage(editingPage.brand_slug, formData);
+        toast.success('Link page updated successfully');
+      } else {
+        // Create new page
+        if (!formData.brand_slug) {
+          toast.error('Brand slug is required');
+          return;
+        }
+        await createLinkPage(formData);
+        toast.success('Link page created successfully');
+      }
       setShowDialog(false);
       setEditingPage(null);
+      setFormData({
+        brand_slug: '',
+        brand_name: '',
+        tagline: '',
+        description: '',
+        logo_url: '',
+        website_url: '',
+        website_text: 'Visit',
+        instagram_url: '',
+        instagram_text: 'Visit',
+        facebook_url: '',
+        facebook_text: 'Visit',
+        whatsapp_url: '',
+        whatsapp_text: 'Visit',
+        google_review_url: '',
+        google_review_text: 'Visit',
+        qr_codes: [],
+        gradient_from: 'from-coral-400',
+        gradient_to: 'to-orange-500',
+        bg_gradient_from: 'from-orange-50',
+        bg_gradient_via: 'via-white',
+        bg_gradient_to: 'to-orange-50/30',
+      });
       fetchLinkPages();
     } catch (error) {
-      toast.error('Failed to update link page');
+      toast.error(editingPage ? 'Failed to update link page' : 'Failed to create link page');
     }
   };
 
   const handleEdit = (page: LinkPage) => {
     setEditingPage(page);
     setFormData({
+      brand_slug: page.brand_slug || '',
       brand_name: page.brand_name || '',
       tagline: page.tagline || '',
       description: page.description || '',
@@ -94,6 +129,34 @@ const LinkPagesManagement: React.FC = () => {
     setShowDialog(true);
   };
 
+  const handleCreate = () => {
+    setEditingPage(null);
+    setFormData({
+      brand_slug: '',
+      brand_name: '',
+      tagline: '',
+      description: '',
+      logo_url: '',
+      website_url: '',
+      website_text: 'Visit',
+      instagram_url: '',
+      instagram_text: 'Visit',
+      facebook_url: '',
+      facebook_text: 'Visit',
+      whatsapp_url: '',
+      whatsapp_text: 'Visit',
+      google_review_url: '',
+      google_review_text: 'Visit',
+      qr_codes: [],
+      gradient_from: 'from-coral-400',
+      gradient_to: 'to-orange-500',
+      bg_gradient_from: 'from-orange-50',
+      bg_gradient_via: 'via-white',
+      bg_gradient_to: 'to-orange-50/30',
+    });
+    setShowDialog(true);
+  };
+
   const handlePreview = (brandSlug: string) => {
     window.open(`/${brandSlug}`, '_blank');
   };
@@ -105,6 +168,14 @@ const LinkPagesManagement: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900">Link Pages Management</h1>
           <p className="text-gray-600 mt-2">Manage social links and content for brand link pages</p>
         </div>
+        <Button
+          onClick={handleCreate}
+          className="bg-coral-500 hover:bg-coral-600"
+          data-testid="add-link-page-btn"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add New Link Page
+        </Button>
       </div>
 
       {loading ? (
@@ -161,9 +232,23 @@ const LinkPagesManagement: React.FC = () => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Link Page: {editingPage?.brand_name}</DialogTitle>
+            <DialogTitle>{editingPage ? `Edit Link Page: ${editingPage.brand_name}` : 'Create New Link Page'}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {!editingPage && (
+              <div>
+                <Label>Brand Slug * (URL-friendly, e.g., "newbrand")</Label>
+                <Input 
+                  required 
+                  value={formData.brand_slug} 
+                  onChange={(e) => setFormData({ ...formData, brand_slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })} 
+                  placeholder="newbrand"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  This will be used in the URL: /{formData.brand_slug || 'brandslug'}. Only lowercase letters, numbers, and hyphens.
+                </p>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Brand Name *</Label>
