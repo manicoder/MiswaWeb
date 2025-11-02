@@ -57,6 +57,7 @@ const LinksMyLittleTales: React.FC = () => {
     linkPage.website_url && {
       name: 'Website',
       url: linkPage.website_url,
+      text: linkPage.website_text || 'Visit',
       icon: Globe,
       color: 'from-blue-500 to-blue-600',
       hoverColor: 'hover:from-blue-600 hover:to-blue-700',
@@ -64,6 +65,7 @@ const LinksMyLittleTales: React.FC = () => {
     linkPage.instagram_url && {
       name: 'Instagram',
       url: linkPage.instagram_url,
+      text: linkPage.instagram_text || 'Visit',
       icon: Instagram,
       color: 'from-purple-500 via-pink-500 to-orange-500',
       hoverColor: 'hover:from-purple-600 hover:via-pink-600 hover:to-orange-600',
@@ -71,6 +73,7 @@ const LinksMyLittleTales: React.FC = () => {
     linkPage.facebook_url && {
       name: 'Facebook',
       url: linkPage.facebook_url,
+      text: linkPage.facebook_text || 'Visit',
       icon: Facebook,
       color: 'from-blue-600 to-blue-700',
       hoverColor: 'hover:from-blue-700 hover:to-blue-800',
@@ -78,6 +81,7 @@ const LinksMyLittleTales: React.FC = () => {
     linkPage.whatsapp_url && {
       name: 'WhatsApp',
       url: linkPage.whatsapp_url,
+      text: linkPage.whatsapp_text || 'Visit',
       icon: MessageCircle,
       color: 'from-green-500 to-green-600',
       hoverColor: 'hover:from-green-600 hover:to-green-700',
@@ -85,6 +89,7 @@ const LinksMyLittleTales: React.FC = () => {
     linkPage.google_review_url && {
       name: 'Google Review',
       url: linkPage.google_review_url,
+      text: linkPage.google_review_text || 'Visit',
       icon: Star,
       color: 'from-yellow-500 to-yellow-600',
       hoverColor: 'hover:from-yellow-600 hover:to-yellow-700',
@@ -92,6 +97,7 @@ const LinksMyLittleTales: React.FC = () => {
   ].filter(Boolean) as Array<{
     name: string;
     url: string;
+    text: string;
     icon: any;
     color: string;
     hoverColor: string;
@@ -167,7 +173,7 @@ const LinksMyLittleTales: React.FC = () => {
                     <div>
                       <div className="font-semibold text-lg">{link.name}</div>
                       <div className="text-white/80 text-sm flex items-center space-x-1">
-                        <span>Visit</span>
+                        <span>{link.text}</span>
                         <ExternalLink className="w-3 h-3" />
                       </div>
                     </div>

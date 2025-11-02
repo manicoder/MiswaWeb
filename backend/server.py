@@ -163,10 +163,15 @@ class LinkPage(BaseModel):
     description: str
     logo_url: str
     website_url: Optional[str] = None
+    website_text: Optional[str] = "Visit"
     instagram_url: Optional[str] = None
+    instagram_text: Optional[str] = "Visit"
     facebook_url: Optional[str] = None
+    facebook_text: Optional[str] = "Visit"
     whatsapp_url: Optional[str] = None
+    whatsapp_text: Optional[str] = "Visit"
     google_review_url: Optional[str] = None
+    google_review_text: Optional[str] = "Visit"
     gradient_from: str = "from-coral-400"
     gradient_to: str = "to-orange-500"
     bg_gradient_from: str = "from-orange-50"
@@ -182,10 +187,15 @@ class LinkPageCreate(BaseModel):
     description: str
     logo_url: str
     website_url: Optional[str] = None
+    website_text: Optional[str] = "Visit"
     instagram_url: Optional[str] = None
+    instagram_text: Optional[str] = "Visit"
     facebook_url: Optional[str] = None
+    facebook_text: Optional[str] = "Visit"
     whatsapp_url: Optional[str] = None
+    whatsapp_text: Optional[str] = "Visit"
     google_review_url: Optional[str] = None
+    google_review_text: Optional[str] = "Visit"
     gradient_from: Optional[str] = "from-coral-400"
     gradient_to: Optional[str] = "to-orange-500"
     bg_gradient_from: Optional[str] = "from-orange-50"
@@ -198,10 +208,15 @@ class LinkPageUpdate(BaseModel):
     description: Optional[str] = None
     logo_url: Optional[str] = None
     website_url: Optional[str] = None
+    website_text: Optional[str] = None
     instagram_url: Optional[str] = None
+    instagram_text: Optional[str] = None
     facebook_url: Optional[str] = None
+    facebook_text: Optional[str] = None
     whatsapp_url: Optional[str] = None
+    whatsapp_text: Optional[str] = None
     google_review_url: Optional[str] = None
+    google_review_text: Optional[str] = None
     gradient_from: Optional[str] = None
     gradient_to: Optional[str] = None
     bg_gradient_from: Optional[str] = None

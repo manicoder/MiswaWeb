@@ -20,10 +20,15 @@ const LinkPagesManagement: React.FC = () => {
     description: '',
     logo_url: '',
     website_url: '',
+    website_text: 'Visit',
     instagram_url: '',
+    instagram_text: 'Visit',
     facebook_url: '',
+    facebook_text: 'Visit',
     whatsapp_url: '',
+    whatsapp_text: 'Visit',
     google_review_url: '',
+    google_review_text: 'Visit',
     gradient_from: 'from-coral-400',
     gradient_to: 'to-orange-500',
     bg_gradient_from: 'from-orange-50',
@@ -69,10 +74,15 @@ const LinkPagesManagement: React.FC = () => {
       description: page.description || '',
       logo_url: page.logo_url || '',
       website_url: page.website_url || '',
+      website_text: page.website_text || 'Visit',
       instagram_url: page.instagram_url || '',
+      instagram_text: page.instagram_text || 'Visit',
       facebook_url: page.facebook_url || '',
+      facebook_text: page.facebook_text || 'Visit',
       whatsapp_url: page.whatsapp_url || '',
+      whatsapp_text: page.whatsapp_text || 'Visit',
       google_review_url: page.google_review_url || '',
+      google_review_text: page.google_review_text || 'Visit',
       gradient_from: page.gradient_from || 'from-coral-400',
       gradient_to: page.gradient_to || 'to-orange-500',
       bg_gradient_from: page.bg_gradient_from || 'from-orange-50',
@@ -193,49 +203,109 @@ const LinkPagesManagement: React.FC = () => {
 
             <div className="border-t pt-4">
               <h3 className="font-semibold text-lg mb-4">Social Links</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Website URL</Label>
-                  <Input 
-                    type="url" 
-                    value={formData.website_url} 
-                    onChange={(e) => setFormData({ ...formData, website_url: e.target.value })} 
-                  />
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Website URL</Label>
+                    <Input 
+                      type="url" 
+                      value={formData.website_url} 
+                      onChange={(e) => setFormData({ ...formData, website_url: e.target.value })} 
+                      placeholder="https://example.com"
+                    />
+                  </div>
+                  <div>
+                    <Label>Website Link Text</Label>
+                    <Input 
+                      type="text" 
+                      value={formData.website_text} 
+                      onChange={(e) => setFormData({ ...formData, website_text: e.target.value })} 
+                      placeholder="Visit"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label>Instagram URL</Label>
-                  <Input 
-                    type="url" 
-                    value={formData.instagram_url} 
-                    onChange={(e) => setFormData({ ...formData, instagram_url: e.target.value })} 
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Instagram URL</Label>
+                    <Input 
+                      type="url" 
+                      value={formData.instagram_url} 
+                      onChange={(e) => setFormData({ ...formData, instagram_url: e.target.value })} 
+                      placeholder="https://instagram.com/..."
+                    />
+                  </div>
+                  <div>
+                    <Label>Instagram Link Text</Label>
+                    <Input 
+                      type="text" 
+                      value={formData.instagram_text} 
+                      onChange={(e) => setFormData({ ...formData, instagram_text: e.target.value })} 
+                      placeholder="Visit"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label>Facebook URL</Label>
-                  <Input 
-                    type="url" 
-                    value={formData.facebook_url} 
-                    onChange={(e) => setFormData({ ...formData, facebook_url: e.target.value })} 
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Facebook URL</Label>
+                    <Input 
+                      type="url" 
+                      value={formData.facebook_url} 
+                      onChange={(e) => setFormData({ ...formData, facebook_url: e.target.value })} 
+                      placeholder="https://facebook.com/..."
+                    />
+                  </div>
+                  <div>
+                    <Label>Facebook Link Text</Label>
+                    <Input 
+                      type="text" 
+                      value={formData.facebook_text} 
+                      onChange={(e) => setFormData({ ...formData, facebook_text: e.target.value })} 
+                      placeholder="Visit"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label>WhatsApp URL</Label>
-                  <Input 
-                    type="url" 
-                    value={formData.whatsapp_url} 
-                    onChange={(e) => setFormData({ ...formData, whatsapp_url: e.target.value })} 
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>WhatsApp URL</Label>
+                    <Input 
+                      type="url" 
+                      value={formData.whatsapp_url} 
+                      onChange={(e) => setFormData({ ...formData, whatsapp_url: e.target.value })} 
+                      placeholder="https://wa.me/..."
+                    />
+                  </div>
+                  <div>
+                    <Label>WhatsApp Link Text</Label>
+                    <Input 
+                      type="text" 
+                      value={formData.whatsapp_text} 
+                      onChange={(e) => setFormData({ ...formData, whatsapp_text: e.target.value })} 
+                      placeholder="Visit"
+                    />
+                  </div>
                 </div>
-                <div className="col-span-2">
-                  <Label>Google Review URL</Label>
-                  <Input 
-                    type="url" 
-                    value={formData.google_review_url} 
-                    onChange={(e) => setFormData({ ...formData, google_review_url: e.target.value })} 
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    To get direct review link: Search your business on Google Maps → Click "Write a review" → Copy the URL
-                  </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Google Review URL</Label>
+                    <Input 
+                      type="url" 
+                      value={formData.google_review_url} 
+                      onChange={(e) => setFormData({ ...formData, google_review_url: e.target.value })} 
+                      placeholder="https://g.page/r/..."
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      To get direct review link: Search your business on Google Maps → Click "Write a review" → Copy the URL
+                    </p>
+                  </div>
+                  <div>
+                    <Label>Google Review Link Text</Label>
+                    <Input 
+                      type="text" 
+                      value={formData.google_review_text} 
+                      onChange={(e) => setFormData({ ...formData, google_review_text: e.target.value })} 
+                      placeholder="Visit"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

@@ -151,10 +151,15 @@ export interface LinkPage {
   description: string;
   logo_url: string;
   website_url?: string;
+  website_text?: string;
   instagram_url?: string;
+  instagram_text?: string;
   facebook_url?: string;
+  facebook_text?: string;
   whatsapp_url?: string;
+  whatsapp_text?: string;
   google_review_url?: string;
+  google_review_text?: string;
   gradient_from?: string;
   gradient_to?: string;
   bg_gradient_from?: string;
