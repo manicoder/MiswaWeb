@@ -260,6 +260,7 @@ const LinkPagesManagement: React.FC = () => {
             bg_gradient_from: 'from-orange-50',
             bg_gradient_via: 'via-white',
             bg_gradient_to: 'to-orange-50/30',
+            background_image_url: '',
           });
         }
       }}>
