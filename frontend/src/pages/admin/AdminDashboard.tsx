@@ -25,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from '../../components/ui/table';
-import { getInquiries, deleteInquiry, exportInquiries } from '../../utils/api';
+import { getInquiries, deleteInquiry, exportInquiries, downloadCV } from '../../utils/api';
 import { format } from 'date-fns';
 import BrandsManagement from './BrandsManagement';
 import CatalogsManagement from './CatalogsManagement';
@@ -187,6 +187,18 @@ const InquiriesManagement: React.FC = () => {
     window.open(exportInquiries(), '_blank');
   };
 
+  const handleDownloadCV = (inquiryId: string, inquiryName: string) => {
+    const url = downloadCV(inquiryId);
+    // Create a temporary anchor element to trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.download = `${inquiryName}_CV`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div data-testid="inquiries-management">
       <div className="flex justify-between items-center mb-8">
@@ -215,6 +227,7 @@ const InquiriesManagement: React.FC = () => {
                 <TableHead>Type</TableHead>
                 <TableHead>Message</TableHead>
                 <TableHead>Date</TableHead>
+                <TableHead>CV</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -227,11 +240,27 @@ const InquiriesManagement: React.FC = () => {
                   <TableCell className="max-w-xs truncate">{inquiry.message}</TableCell>
                   <TableCell>{format(new Date(inquiry.created_at), 'MMM dd, yyyy')}</TableCell>
                   <TableCell>
+                    {inquiry.cv_filename ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDownloadCV(inquiry.id || inquiry._id, inquiry.name)}
+                        data-testid={`download-cv-${inquiry.id || inquiry._id}`}
+                        className="text-blue-600 hover:text-blue-700"
+                        title="Download CV"
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    ) : (
+                      <span className="text-gray-400 text-sm">No CV</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDelete(inquiry.id)}
-                      data-testid={`delete-inquiry-${inquiry.id}`}
+                      onClick={() => handleDelete(inquiry.id || inquiry._id)}
+                      data-testid={`delete-inquiry-${inquiry.id || inquiry._id}`}
                       className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="w-4 h-4" />

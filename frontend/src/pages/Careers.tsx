@@ -16,6 +16,7 @@ const Careers: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
+  const [cvFile, setCvFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
@@ -36,6 +37,7 @@ const Careers: React.FC = () => {
   const handleApply = (job: any) => {
     setSelectedJob(job);
     setFormData({ ...formData, message: `Applying for: ${job.title}` });
+    setCvFile(null);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -45,15 +47,42 @@ const Careers: React.FC = () => {
     try {
       await createInquiry({
         ...formData,
+        inquiry_type: 'career',
         subject: `Career Application: ${selectedJob?.title || ''}`,
-      } as any);
+      } as any, cvFile || undefined);
       toast.success('Application submitted successfully! We\'ll be in touch soon.');
       setSelectedJob(null);
       setFormData({ name: '', email: '', phone: '', message: '' });
-    } catch (error) {
-      toast.error('Failed to submit application. Please try again.');
+      setCvFile(null);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.detail || 'Failed to submit application. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const fileExt = file.name.split('.').pop()?.toLowerCase();
+      const allowedExtensions = ['pdf', 'doc', 'docx'];
+      
+      if (!allowedExtensions.includes(fileExt || '')) {
+        toast.error('Please upload a PDF or DOC/DOCX file.');
+        e.target.value = '';
+        return;
+      }
+      
+      // Check file size (max 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        toast.error('File size must be less than 10MB.');
+        e.target.value = '';
+        return;
+      }
+      
+      setCvFile(file);
     }
   };
 
@@ -194,6 +223,22 @@ const Careers: React.FC = () => {
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               />
+            </div>
+            <div>
+              <Label htmlFor="cv">CV/Resume (Optional - PDF, DOC, DOCX)</Label>
+              <Input
+                id="cv"
+                type="file"
+                accept=".pdf,.doc,.docx"
+                data-testid="cv-file-input"
+                onChange={handleFileChange}
+                className="cursor-pointer"
+              />
+              {cvFile && (
+                <p className="text-sm text-gray-600 mt-1">
+                  Selected: {cvFile.name} ({(cvFile.size / 1024 / 1024).toFixed(2)} MB)
+                </p>
+              )}
             </div>
             <Button
               type="submit"

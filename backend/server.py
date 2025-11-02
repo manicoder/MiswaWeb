@@ -1,5 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -14,9 +14,14 @@ import aiohttp
 from bs4 import BeautifulSoup
 import io
 import csv
+import shutil
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Create uploads directory for CV files
+UPLOADS_DIR = ROOT_DIR / "uploads" / "cv"
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -125,6 +130,7 @@ class Inquiry(BaseModel):
     company: Optional[str] = None
     message: str
     inquiry_type: str = "general"  # general, wholesale, career
+    cv_filename: Optional[str] = None  # Path to uploaded CV file
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class InquiryCreate(BaseModel):
@@ -438,8 +444,52 @@ async def delete_career(career_id: str):
 # ==================== INQUIRIES ====================
 
 @api_router.post("/inquiries", response_model=Inquiry)
-async def create_inquiry(input: InquiryCreate):
-    inquiry = Inquiry(**input.model_dump())
+async def create_inquiry(
+    name: str = Form(...),
+    email: EmailStr = Form(...),
+    phone: Optional[str] = Form(None),
+    company: Optional[str] = Form(None),
+    message: str = Form(...),
+    inquiry_type: str = Form("general"),
+    cv_file: Optional[UploadFile] = File(None)
+):
+    """Create an inquiry with optional CV file upload"""
+    cv_filename = None
+    
+    # Handle CV file upload if provided
+    if cv_file and cv_file.filename:
+        # Validate file extension
+        file_ext = Path(cv_file.filename).suffix.lower()
+        allowed_extensions = ['.pdf', '.doc', '.docx']
+        
+        if file_ext not in allowed_extensions:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invalid file type. Allowed types: {', '.join(allowed_extensions)}"
+            )
+        
+        # Generate unique filename
+        file_id = str(uuid.uuid4())
+        cv_filename = f"{file_id}{file_ext}"
+        file_path = UPLOADS_DIR / cv_filename
+        
+        # Save file
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(cv_file.file, buffer)
+        
+        logger.info(f"CV file saved: {cv_filename}")
+    
+    # Create inquiry
+    inquiry_data = {
+        "name": name,
+        "email": email,
+        "phone": phone,
+        "company": company,
+        "message": message,
+        "inquiry_type": inquiry_type,
+        "cv_filename": cv_filename
+    }
+    inquiry = Inquiry(**inquiry_data)
     doc = inquiry.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
     await db.inquiries.insert_one(doc)
@@ -483,10 +533,53 @@ async def export_inquiries_csv():
 
 @api_router.delete("/inquiries/{inquiry_id}")
 async def delete_inquiry(inquiry_id: str):
+    # Get inquiry to check for CV file
+    inquiry = await db.inquiries.find_one({"id": inquiry_id}, {"_id": 0})
+    if not inquiry:
+        raise HTTPException(status_code=404, detail="Inquiry not found")
+    
+    # Delete CV file if exists
+    if inquiry.get('cv_filename'):
+        cv_file_path = UPLOADS_DIR / inquiry['cv_filename']
+        if cv_file_path.exists():
+            cv_file_path.unlink()
+            logger.info(f"Deleted CV file: {inquiry['cv_filename']}")
+    
     result = await db.inquiries.delete_one({"id": inquiry_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Inquiry not found")
     return {"message": "Inquiry deleted successfully"}
+
+@api_router.get("/inquiries/{inquiry_id}/cv")
+async def download_cv(inquiry_id: str):
+    """Download CV file for a specific inquiry"""
+    inquiry = await db.inquiries.find_one({"id": inquiry_id}, {"_id": 0})
+    if not inquiry:
+        raise HTTPException(status_code=404, detail="Inquiry not found")
+    
+    cv_filename = inquiry.get('cv_filename')
+    if not cv_filename:
+        raise HTTPException(status_code=404, detail="CV file not found for this inquiry")
+    
+    file_path = UPLOADS_DIR / cv_filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="CV file not found on server")
+    
+    # Determine media type based on file extension
+    file_ext = Path(cv_filename).suffix.lower()
+    media_types = {
+        '.pdf': 'application/pdf',
+        '.doc': 'application/msword',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    }
+    media_type = media_types.get(file_ext, 'application/octet-stream')
+    
+    return FileResponse(
+        path=str(file_path),
+        media_type=media_type,
+        filename=cv_filename,
+        headers={"Content-Disposition": f"attachment; filename={cv_filename}"}
+    )
 
 # ==================== COMPANY INFO ====================
 

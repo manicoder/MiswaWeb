@@ -86,11 +86,16 @@ export interface Career {
 
 export interface Inquiry {
   _id?: string;
+  id?: string;
   name: string;
   email: string;
   phone?: string;
+  company?: string;
   subject?: string;
   message: string;
+  inquiry_type?: string;
+  cv_filename?: string;
+  created_at?: string;
   createdAt?: string;
 }
 
@@ -131,10 +136,27 @@ export const updateCareer = (id: string, data: Partial<Career>): Promise<AxiosRe
 export const deleteCareer = (id: string): Promise<AxiosResponse<void>> => api.delete(`/careers/${id}`);
 
 // Inquiries
-export const createInquiry = (data: Partial<Inquiry>): Promise<AxiosResponse<Inquiry>> => api.post('/inquiries', data);
+export const createInquiry = (data: Partial<Inquiry>, cvFile?: File): Promise<AxiosResponse<Inquiry>> => {
+  // Always use FormData to support file uploads
+  const formData = new FormData();
+  formData.append('name', data.name || '');
+  formData.append('email', data.email || '');
+  formData.append('message', data.message || '');
+  if (data.phone) formData.append('phone', data.phone);
+  if (data.company) formData.append('company', data.company);
+  if (data.inquiry_type) formData.append('inquiry_type', data.inquiry_type);
+  if (cvFile) formData.append('cv_file', cvFile);
+  
+  return api.post('/inquiries', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
 export const getInquiries = (): Promise<AxiosResponse<Inquiry[]>> => api.get('/inquiries');
 export const exportInquiries = (): string => `${API}/inquiries/export`;
 export const deleteInquiry = (id: string): Promise<AxiosResponse<void>> => api.delete(`/inquiries/${id}`);
+export const downloadCV = (inquiryId: string): string => `${API}/inquiries/${inquiryId}/cv`;
 
 // Company Info
 export const getCompanyInfo = (): Promise<AxiosResponse<CompanyInfo>> => api.get('/company-info');
