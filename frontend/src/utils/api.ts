@@ -142,3 +142,31 @@ export const updateCompanyInfo = (data: Partial<CompanyInfo>): Promise<AxiosResp
 // MyLittleTales Products
 export const getMyLittleTalesProducts = (): Promise<AxiosResponse<any[]>> => api.get('/mylittletales/products');
 
+// Link Pages
+export interface LinkPage {
+  id?: string;
+  brand_slug: string;
+  brand_name: string;
+  tagline: string;
+  description: string;
+  logo_url: string;
+  website_url?: string;
+  instagram_url?: string;
+  facebook_url?: string;
+  whatsapp_url?: string;
+  google_review_url?: string;
+  gradient_from?: string;
+  gradient_to?: string;
+  bg_gradient_from?: string;
+  bg_gradient_via?: string;
+  bg_gradient_to?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export const getLinkPages = (): Promise<AxiosResponse<LinkPage[]>> => api.get('/link-pages');
+export const getLinkPageBySlug = (brandSlug: string): Promise<AxiosResponse<LinkPage>> => api.get(`/link-pages/${brandSlug}`);
+export const createLinkPage = (data: Partial<LinkPage>): Promise<AxiosResponse<LinkPage>> => api.post('/link-pages', data);
+export const updateLinkPage = (brandSlug: string, data: Partial<LinkPage>): Promise<AxiosResponse<LinkPage>> => api.put(`/link-pages/${brandSlug}`, data);
+export const deleteLinkPage = (brandSlug: string): Promise<AxiosResponse<void>> => api.delete(`/link-pages/${brandSlug}`);
+

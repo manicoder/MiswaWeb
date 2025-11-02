@@ -154,6 +154,60 @@ class CompanyInfoUpdate(BaseModel):
     email: Optional[str] = None
     address: Optional[str] = None
 
+class LinkPage(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    brand_slug: str  # mylittletales or tyneetots
+    brand_name: str
+    tagline: str
+    description: str
+    logo_url: str
+    website_url: Optional[str] = None
+    instagram_url: Optional[str] = None
+    facebook_url: Optional[str] = None
+    whatsapp_url: Optional[str] = None
+    google_review_url: Optional[str] = None
+    gradient_from: str = "from-coral-400"
+    gradient_to: str = "to-orange-500"
+    bg_gradient_from: str = "from-orange-50"
+    bg_gradient_via: str = "via-white"
+    bg_gradient_to: str = "to-orange-50/30"
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class LinkPageCreate(BaseModel):
+    brand_slug: str
+    brand_name: str
+    tagline: str
+    description: str
+    logo_url: str
+    website_url: Optional[str] = None
+    instagram_url: Optional[str] = None
+    facebook_url: Optional[str] = None
+    whatsapp_url: Optional[str] = None
+    google_review_url: Optional[str] = None
+    gradient_from: Optional[str] = "from-coral-400"
+    gradient_to: Optional[str] = "to-orange-500"
+    bg_gradient_from: Optional[str] = "from-orange-50"
+    bg_gradient_via: Optional[str] = "via-white"
+    bg_gradient_to: Optional[str] = "to-orange-50/30"
+
+class LinkPageUpdate(BaseModel):
+    brand_name: Optional[str] = None
+    tagline: Optional[str] = None
+    description: Optional[str] = None
+    logo_url: Optional[str] = None
+    website_url: Optional[str] = None
+    instagram_url: Optional[str] = None
+    facebook_url: Optional[str] = None
+    whatsapp_url: Optional[str] = None
+    google_review_url: Optional[str] = None
+    gradient_from: Optional[str] = None
+    gradient_to: Optional[str] = None
+    bg_gradient_from: Optional[str] = None
+    bg_gradient_via: Optional[str] = None
+    bg_gradient_to: Optional[str] = None
+
 # ==================== BRANDS ====================
 
 @api_router.get("/brands", response_model=List[Brand])
@@ -414,6 +468,59 @@ async def update_company_info(input: CompanyInfoUpdate):
         info['updated_at'] = datetime.fromisoformat(info['updated_at'])
     return CompanyInfo(**info)
 
+# ==================== LINK PAGES ====================
+
+@api_router.get("/link-pages", response_model=List[LinkPage])
+async def get_link_pages():
+    link_pages = await db.link_pages.find({}, {"_id": 0}).to_list(100)
+    for page in link_pages:
+        if isinstance(page.get('created_at'), str):
+            page['created_at'] = datetime.fromisoformat(page['created_at'])
+        if isinstance(page.get('updated_at'), str):
+            page['updated_at'] = datetime.fromisoformat(page['updated_at'])
+    return link_pages
+
+@api_router.get("/link-pages/{brand_slug}", response_model=LinkPage)
+async def get_link_page_by_slug(brand_slug: str):
+    link_page = await db.link_pages.find_one({"brand_slug": brand_slug}, {"_id": 0})
+    if not link_page:
+        raise HTTPException(status_code=404, detail="Link page not found")
+    if isinstance(link_page.get('created_at'), str):
+        link_page['created_at'] = datetime.fromisoformat(link_page['created_at'])
+    if isinstance(link_page.get('updated_at'), str):
+        link_page['updated_at'] = datetime.fromisoformat(link_page['updated_at'])
+    return LinkPage(**link_page)
+
+@api_router.post("/link-pages", response_model=LinkPage)
+async def create_link_page(input: LinkPageCreate):
+    link_page = LinkPage(**input.model_dump())
+    doc = link_page.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    doc['updated_at'] = doc['updated_at'].isoformat()
+    await db.link_pages.insert_one(doc)
+    return link_page
+
+@api_router.put("/link-pages/{brand_slug}", response_model=LinkPage)
+async def update_link_page(brand_slug: str, input: LinkPageUpdate):
+    update_dict = {k: v for k, v in input.model_dump().items() if v is not None}
+    update_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
+    result = await db.link_pages.update_one({"brand_slug": brand_slug}, {"$set": update_dict})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Link page not found")
+    updated = await db.link_pages.find_one({"brand_slug": brand_slug}, {"_id": 0})
+    if isinstance(updated.get('created_at'), str):
+        updated['created_at'] = datetime.fromisoformat(updated['created_at'])
+    if isinstance(updated.get('updated_at'), str):
+        updated['updated_at'] = datetime.fromisoformat(updated['updated_at'])
+    return LinkPage(**updated)
+
+@api_router.delete("/link-pages/{brand_slug}")
+async def delete_link_page(brand_slug: str):
+    result = await db.link_pages.delete_one({"brand_slug": brand_slug})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Link page not found")
+    return {"message": "Link page deleted successfully"}
+
 # ==================== MYLITTLETALES PRODUCTS ====================
 
 @api_router.get("/mylittletales/products")
@@ -474,6 +581,57 @@ async def initialize_data():
         await db.brands.insert_one(tt_doc)
         
         logger.info("Initialized default brand data")
+    
+    # Initialize default link pages if empty
+    link_pages_count = await db.link_pages.count_documents({})
+    if link_pages_count == 0:
+        # MyLittleTales Link Page
+        mlt_link_page = LinkPage(
+            brand_slug="mylittletales",
+            brand_name="MyLittleTales",
+            tagline="Educational Wooden Toys for Growing Minds",
+            description="Crafting premium wooden educational toys designed to inspire creativity, learning, and development in children.",
+            logo_url="https://customer-assets.emergentagent.com/job_ece25fd4-86f7-4b5b-899a-e81995d5ad91/artifacts/okjqwqlr_mlt_logo_transparent_1%20%281%29.png",
+            website_url="https://www.mylittletales.com",
+            instagram_url="https://www.instagram.com/mylittletalestoys",
+            facebook_url="https://www.facebook.com/MyLittleTalesToys",
+            whatsapp_url="https://wa.me/918199848535?text=Hi!",
+            google_review_url="https://www.google.com/maps/search/?api=1&query=MyLittleTales+Toys+Review",
+            gradient_from="from-coral-400",
+            gradient_to="to-orange-500",
+            bg_gradient_from="from-orange-50",
+            bg_gradient_via="via-white",
+            bg_gradient_to="to-orange-50/30"
+        )
+        mlt_link_doc = mlt_link_page.model_dump()
+        mlt_link_doc['created_at'] = mlt_link_doc['created_at'].isoformat()
+        mlt_link_doc['updated_at'] = mlt_link_doc['updated_at'].isoformat()
+        await db.link_pages.insert_one(mlt_link_doc)
+        
+        # Tynee Tots Link Page
+        tt_link_page = LinkPage(
+            brand_slug="tyneetots",
+            brand_name="Tynee Tots",
+            tagline="Premium Kids Clothing & Accessories",
+            description="Delightful collection of premium children's wear and accessories. We focus on comfort, style, and quality to ensure your little ones look adorable while feeling great.",
+            logo_url="https://customer-assets.emergentagent.com/job_ece25fd4-86f7-4b5b-899a-e81995d5ad91/artifacts/8rg2l7k3_Untitled%20design%20%282%29.png",
+            website_url="https://www.tyneetots.com",
+            instagram_url="https://www.instagram.com/mylittletalestoys",
+            facebook_url="https://www.facebook.com/MyLittleTalesToys",
+            whatsapp_url="https://wa.me/918199848535?text=Hi!",
+            google_review_url="https://www.google.com/maps/search/?api=1&query=Tynee+Tots+Review",
+            gradient_from="from-purple-400",
+            gradient_to="to-indigo-500",
+            bg_gradient_from="from-purple-50",
+            bg_gradient_via="via-white",
+            bg_gradient_to="to-indigo-50/30"
+        )
+        tt_link_doc = tt_link_page.model_dump()
+        tt_link_doc['created_at'] = tt_link_doc['created_at'].isoformat()
+        tt_link_doc['updated_at'] = tt_link_doc['updated_at'].isoformat()
+        await db.link_pages.insert_one(tt_link_doc)
+        
+        logger.info("Initialized default link pages data")
 
 app.include_router(api_router)
 

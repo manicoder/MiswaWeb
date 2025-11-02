@@ -1,29 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { getLinkPages, type LinkPage } from '../utils/api';
 
 const Links: React.FC = () => {
-  const brands = [
-    {
-      name: 'MyLittleTales',
-      slug: 'mylittletales',
-      tagline: 'Educational Wooden Toys for Growing Minds',
-      description: 'Premium wooden educational toys designed to inspire creativity, learning, and development in children.',
-      logo: 'https://customer-assets.emergentagent.com/job_ece25fd4-86f7-4b5b-899a-e81995d5ad91/artifacts/okjqwqlr_mlt_logo_transparent_1%20%281%29.png',
-      gradient: 'from-orange-400 via-coral-500 to-pink-500',
-      hoverGradient: 'hover:from-orange-500 hover:via-coral-600 hover:to-pink-600',
-    },
-    {
-      name: 'Tynee Tots',
-      slug: 'tyneetots',
-      tagline: 'Premium Kids Clothing & Accessories',
-      description: 'Delightful collection of premium children\'s wear and accessories focusing on comfort, style, and quality.',
-      logo: 'https://customer-assets.emergentagent.com/job_ece25fd4-86f7-4b5b-899a-e81995d5ad91/artifacts/8rg2l7k3_Untitled%20design%20%282%29.png',
-      gradient: 'from-purple-400 via-indigo-500 to-blue-500',
-      hoverGradient: 'hover:from-purple-500 hover:via-indigo-600 hover:to-blue-600',
-    },
-  ];
+  const [linkPages, setLinkPages] = useState<LinkPage[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    fetchLinkPages();
+  }, []);
+
+  const fetchLinkPages = async () => {
+    try {
+      const response = await getLinkPages();
+      setLinkPages(response.data);
+    } catch (error) {
+      console.error('Failed to fetch link pages:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const brands = linkPages.map((page) => ({
+    name: page.brand_name,
+    slug: page.brand_slug,
+    tagline: page.tagline,
+    description: page.description,
+    logo: page.logo_url,
+    gradient: `${page.gradient_from || 'from-orange-400'} ${page.gradient_to || 'to-pink-500'}`,
+    hoverGradient: `hover:${page.gradient_from || 'from-orange-500'} hover:${page.gradient_to || 'to-pink-600'}`,
+  }));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-purple-50/30" data-testid="links-page">
@@ -51,8 +59,13 @@ const Links: React.FC = () => {
         </motion.div>
 
         {/* Brand Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {brands.map((brand, index) => (
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-12 h-12 border-4 border-coral-200 border-t-coral-500 rounded-full animate-spin"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {brands.map((brand, index) => (
             <motion.div
               key={brand.slug}
               initial={{ opacity: 0, y: 20 }}
@@ -93,8 +106,9 @@ const Links: React.FC = () => {
                 </div>
               </Link>
             </motion.div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Footer Note */}
         <motion.div

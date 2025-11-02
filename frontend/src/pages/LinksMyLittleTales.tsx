@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Globe, 
@@ -10,57 +10,100 @@ import {
   QrCode,
   ArrowLeft
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
+import { getLinkPageBySlug, type LinkPage } from '../utils/api';
 
 const LinksMyLittleTales: React.FC = () => {
+  const { brandSlug } = useParams<{ brandSlug: string }>();
+  const [linkPage, setLinkPage] = useState<LinkPage | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    fetchLinkPage();
+  }, [brandSlug]);
+
+  const fetchLinkPage = async () => {
+    try {
+      const slug = brandSlug || 'mylittletales';
+      const response = await getLinkPageBySlug(slug);
+      setLinkPage(response.data);
+    } catch (error) {
+      console.error('Failed to fetch link page:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-orange-50/30 flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-coral-200 border-t-coral-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!linkPage) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-orange-50/30 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Link Page Not Found</h1>
+          <Link to="/links" className="text-coral-500 hover:underline">Back to Brands</Link>
+        </div>
+      </div>
+    );
+  }
+
   const links = [
-    {
+    linkPage.website_url && {
       name: 'Website',
-      url: 'https://www.mylittletales.com',
+      url: linkPage.website_url,
       icon: Globe,
       color: 'from-blue-500 to-blue-600',
       hoverColor: 'hover:from-blue-600 hover:to-blue-700',
     },
-    {
+    linkPage.instagram_url && {
       name: 'Instagram',
-      url: 'https://www.instagram.com/mylittletalestoys',
+      url: linkPage.instagram_url,
       icon: Instagram,
       color: 'from-purple-500 via-pink-500 to-orange-500',
       hoverColor: 'hover:from-purple-600 hover:via-pink-600 hover:to-orange-600',
     },
-    {
+    linkPage.facebook_url && {
       name: 'Facebook',
-      url: 'https://www.facebook.com/MyLittleTalesToys',
+      url: linkPage.facebook_url,
       icon: Facebook,
       color: 'from-blue-600 to-blue-700',
       hoverColor: 'hover:from-blue-700 hover:to-blue-800',
     },
-    {
+    linkPage.whatsapp_url && {
       name: 'WhatsApp',
-      url: 'https://wa.me/918199848535?text=Hi!',
+      url: linkPage.whatsapp_url,
       icon: MessageCircle,
       color: 'from-green-500 to-green-600',
       hoverColor: 'hover:from-green-600 hover:to-green-700',
     },
-    {
+    linkPage.google_review_url && {
       name: 'Google Review',
-      url: 'https://www.google.com/maps/search/?api=1&query=MyLittleTales+Toys',
+      url: linkPage.google_review_url,
       icon: Star,
       color: 'from-yellow-500 to-yellow-600',
       hoverColor: 'hover:from-yellow-600 hover:to-yellow-700',
-      note: 'To get direct review link: Search for your business on Google Maps, click "Write a review", and copy the URL',
     },
-  ];
+  ].filter(Boolean) as Array<{
+    name: string;
+    url: string;
+    icon: any;
+    color: string;
+    hoverColor: string;
+  }>;
 
-  // Google Review URL - Update this with your actual Google Place review URL
-  // Format: https://g.page/r/YOUR_PLACE_ID/review
-  // To get it: Search your business on Google Maps → Click "Write a review" → Copy the URL
-  const googleReviewUrl = 'https://www.google.com/maps/search/?api=1&query=MyLittleTales+Toys+Review';
-  const instagramUrl = 'https://www.instagram.com/mylittletalestoys';
+  const googleReviewUrl = linkPage.google_review_url || '';
+  const instagramUrl = linkPage.instagram_url || '';
+  const bgGradient = `bg-gradient-to-b ${linkPage.bg_gradient_from || 'from-orange-50'} ${linkPage.bg_gradient_via || 'via-white'} ${linkPage.bg_gradient_to || 'to-orange-50/30'}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-orange-50/30" data-testid="links-mylittletales-page">
+    <div className={`min-h-screen ${bgGradient}`} data-testid="links-mylittletales-page">
       <div className="max-w-md mx-auto px-4 py-12">
         {/* Back Button */}
         <Link to="/links" className="inline-flex items-center space-x-2 text-gray-600 hover:text-coral-500 transition-colors mb-6">
@@ -78,11 +121,11 @@ const LinksMyLittleTales: React.FC = () => {
           {/* Profile Picture/Logo */}
           <div className="mb-6 flex justify-center">
             <div className="relative">
-              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-coral-400 to-orange-500 p-1 shadow-xl">
+              <div className={`w-32 h-32 rounded-full bg-gradient-to-br ${linkPage.gradient_from || 'from-coral-400'} ${linkPage.gradient_to || 'to-orange-500'} p-1 shadow-xl`}>
                 <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
                   <img
-                    src="https://customer-assets.emergentagent.com/job_ece25fd4-86f7-4b5b-899a-e81995d5ad91/artifacts/okjqwqlr_mlt_logo_transparent_1%20%281%29.png"
-                    alt="MyLittleTales"
+                    src={linkPage.logo_url}
+                    alt={linkPage.brand_name}
                     className="w-full h-full object-contain p-3"
                   />
                 </div>
@@ -97,13 +140,13 @@ const LinksMyLittleTales: React.FC = () => {
           </div>
 
           {/* Name */}
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">MyLittleTales</h1>
-          <p className="text-gray-600 mb-6">Educational Wooden Toys for Growing Minds</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{linkPage.brand_name}</h1>
+          <p className="text-gray-600 mb-6">{linkPage.tagline}</p>
           
           {/* Bio */}
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-gray-200 shadow-sm">
             <p className="text-sm text-gray-700 leading-relaxed">
-              Crafting premium wooden educational toys designed to inspire creativity, learning, and development in children.
+              {linkPage.description}
             </p>
           </div>
         </motion.div>
@@ -142,6 +185,11 @@ const LinksMyLittleTales: React.FC = () => {
             );
           })}
         </div>
+        {links.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <p>No links available for this brand.</p>
+          </div>
+        )}
 
         {/* QR Codes Section */}
         <motion.div
