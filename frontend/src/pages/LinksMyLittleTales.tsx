@@ -7,8 +7,7 @@ import {
   MessageCircle, 
   Star,
   ExternalLink,
-  QrCode,
-  ArrowLeft
+  QrCode
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
@@ -105,12 +104,6 @@ const LinksMyLittleTales: React.FC = () => {
   return (
     <div className={`min-h-screen ${bgGradient}`} data-testid="links-mylittletales-page">
       <div className="max-w-md mx-auto px-4 py-12">
-        {/* Back Button */}
-        <Link to="/" className="inline-flex items-center space-x-2 text-gray-600 hover:text-coral-500 transition-colors mb-6">
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back to Home</span>
-        </Link>
-
         {/* Profile Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
