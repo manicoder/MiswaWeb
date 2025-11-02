@@ -34,7 +34,7 @@ const Links: React.FC = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-purple-50/30" data-testid="links-page">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-purple-50/30 font-lato" data-testid="links-page">
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Header */}
         <motion.div
