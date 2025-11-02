@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Globe, 
@@ -10,8 +10,10 @@ import {
   QrCode
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
-import { QRCodeSVG } from 'qrcode.react';
 import { getLinkPageBySlug, type LinkPage } from '../utils/api';
+
+// Lazy load QR code component for better performance
+const QRCodeSVG = lazy(() => import('qrcode.react').then(m => ({ default: m.QRCodeSVG })));
 
 const LinksMyLittleTales: React.FC = () => {
   const { brandSlug } = useParams<{ brandSlug: string }>();
@@ -20,6 +22,7 @@ const LinksMyLittleTales: React.FC = () => {
 
   useEffect(() => {
     fetchLinkPage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brandSlug]);
 
   const fetchLinkPage = async () => {
@@ -53,7 +56,8 @@ const LinksMyLittleTales: React.FC = () => {
     );
   }
 
-  const links = [
+  // Memoize links array to prevent unnecessary recalculations
+  const links = useMemo(() => [
     linkPage.website_url && {
       name: 'Website',
       url: linkPage.website_url,
@@ -101,9 +105,13 @@ const LinksMyLittleTales: React.FC = () => {
     icon: any;
     color: string;
     hoverColor: string;
-  }>;
+  }>, [linkPage]);
 
-  const bgGradient = `bg-gradient-to-b ${linkPage.bg_gradient_from || 'from-orange-50'} ${linkPage.bg_gradient_via || 'via-white'} ${linkPage.bg_gradient_to || 'to-orange-50/30'}`;
+  // Memoize computed values
+  const bgGradient = useMemo(() => 
+    `bg-gradient-to-b ${linkPage.bg_gradient_from || 'from-orange-50'} ${linkPage.bg_gradient_via || 'via-white'} ${linkPage.bg_gradient_to || 'to-orange-50/30'}`,
+    [linkPage.bg_gradient_from, linkPage.bg_gradient_via, linkPage.bg_gradient_to]
+  );
   const qrCodes = linkPage.qr_codes || [];
 
   return (
@@ -111,9 +119,9 @@ const LinksMyLittleTales: React.FC = () => {
       <div className="max-w-md mx-auto px-4 py-12">
         {/* Profile Section */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
           className="text-center mb-12"
         >
           {/* Profile Picture/Logo */}
@@ -125,6 +133,8 @@ const LinksMyLittleTales: React.FC = () => {
                     src={linkPage.logo_url}
                     alt={linkPage.brand_name}
                     className="w-full h-full object-contain p-3"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
               </div>
@@ -159,9 +169,9 @@ const LinksMyLittleTales: React.FC = () => {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: Math.min(index * 0.05, 0.3), duration: 0.3 }}
                 className={`block group relative overflow-hidden bg-gradient-to-r ${link.color} ${link.hoverColor} text-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02]`}
               >
                 <div className="flex items-center justify-between">
@@ -192,9 +202,9 @@ const LinksMyLittleTales: React.FC = () => {
         {/* QR Codes Section */}
         {qrCodes.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
             className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100"
           >
             <div className="flex items-center justify-center space-x-2 mb-6">
@@ -205,15 +215,17 @@ const LinksMyLittleTales: React.FC = () => {
             <div className={`grid gap-6 ${qrCodes.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
               {qrCodes.map((qr, index) => (
                 <div key={index} className="text-center">
-                  <div className="bg-white p-4 rounded-2xl border-2 border-gray-200 mb-3 flex items-center justify-center">
-                    <QRCodeSVG
-                      value={qr.url}
-                      size={120}
-                      level="H"
-                      includeMargin={false}
-                      bgColor="#FFFFFF"
-                      fgColor="#000000"
-                    />
+                  <div className="bg-white p-4 rounded-2xl border-2 border-gray-200 mb-3 flex items-center justify-center min-h-[148px]">
+                    <Suspense fallback={<div className="w-[120px] h-[120px] bg-gray-100 animate-pulse rounded" />}>
+                      <QRCodeSVG
+                        value={qr.url}
+                        size={120}
+                        level="M"
+                        includeMargin={false}
+                        bgColor="#FFFFFF"
+                        fgColor="#000000"
+                      />
+                    </Suspense>
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-1">
                     {qr.title}
@@ -226,14 +238,9 @@ const LinksMyLittleTales: React.FC = () => {
         )}
 
         {/* Footer Note */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-          className="text-center mt-8 text-sm text-gray-500"
-        >
+        <div className="text-center mt-8 text-sm text-gray-500">
           <p>Thank you for connecting with us! 🙏</p>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

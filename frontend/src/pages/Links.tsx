@@ -38,9 +38,9 @@ const Links: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
           className="text-center mb-12"
         >
           <div className="mb-6 flex justify-center">
@@ -68,9 +68,9 @@ const Links: React.FC = () => {
             {brands.map((brand, index) => (
             <motion.div
               key={brand.slug}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.2, duration: 0.6 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: Math.min(index * 0.1, 0.3), duration: 0.3 }}
             >
               <Link to={`/${brand.slug}`}>
                 <div className={`group relative overflow-hidden bg-gradient-to-br ${brand.gradient} ${brand.hoverGradient} rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all transform hover:scale-[1.02] min-h-[400px] flex flex-col`}>
@@ -81,6 +81,8 @@ const Links: React.FC = () => {
                         src={brand.logo}
                         alt={brand.name}
                         className="w-full h-full object-contain"
+                        loading="lazy"
+                        decoding="async"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                         }}
@@ -111,14 +113,9 @@ const Links: React.FC = () => {
         )}
 
         {/* Footer Note */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-          className="text-center mt-12 text-sm text-gray-500"
-        >
+        <div className="text-center mt-12 text-sm text-gray-500">
           <p>Connect with us on social media! 🎉</p>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
