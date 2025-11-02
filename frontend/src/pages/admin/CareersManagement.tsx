@@ -8,8 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../componen
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { getCareers, createCareer, updateCareer, deleteCareer } from '../../utils/api';
 import { toast } from 'sonner';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import RichTextEditor from '../../components/ui/rich-text-editor';
 
 const CareersManagement: React.FC = () => {
   const [careers, setCareers] = useState<any[]>([]);
@@ -187,9 +186,8 @@ const CareersManagement: React.FC = () => {
             </div>
             <div>
               <Label>Description *</Label>
-              <div className="mb-4 [&_.ql-container]:min-h-[200px] [&_.ql-editor]:min-h-[200px]">
-                <ReactQuill
-                  theme="snow"
+              <div className="mb-4">
+                <RichTextEditor
                   value={formData.description}
                   onChange={(value) => setFormData({ ...formData, description: value })}
                   placeholder="Job description and responsibilities"
@@ -214,9 +212,8 @@ const CareersManagement: React.FC = () => {
             </div>
             <div>
               <Label>Requirements *</Label>
-              <div className="mb-4 [&_.ql-container]:min-h-[200px] [&_.ql-editor]:min-h-[200px]">
-                <ReactQuill
-                  theme="snow"
+              <div className="mb-4">
+                <RichTextEditor
                   value={formData.requirements}
                   onChange={(value) => setFormData({ ...formData, requirements: value })}
                   placeholder="Required qualifications and skills"
