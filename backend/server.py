@@ -154,6 +154,10 @@ class CompanyInfoUpdate(BaseModel):
     email: Optional[str] = None
     address: Optional[str] = None
 
+class QRCode(BaseModel):
+    title: str
+    url: str
+
 class LinkPage(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -203,10 +207,6 @@ class LinkPageCreate(BaseModel):
     bg_gradient_from: Optional[str] = "from-orange-50"
     bg_gradient_via: Optional[str] = "via-white"
     bg_gradient_to: Optional[str] = "to-orange-50/30"
-
-class QRCode(BaseModel):
-    title: str
-    url: str
 
 class LinkPageUpdate(BaseModel):
     brand_name: Optional[str] = None
