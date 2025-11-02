@@ -54,6 +54,21 @@ const Footer: React.FC = () => {
     return iconMap[iconName] || null;
   };
 
+  // Normalize URL to ensure it has a protocol
+  const normalizeUrl = (url: string): string => {
+    if (!url) return '#';
+    // If URL already has http:// or https://, return as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    // If URL starts with //, prepend https:
+    if (url.startsWith('//')) {
+      return `https:${url}`;
+    }
+    // Otherwise, prepend https://
+    return `https://${url}`;
+  };
+
   return (
     <footer data-testid="main-footer" className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -73,10 +88,11 @@ const Footer: React.FC = () => {
               {socialLinks.map((link, index) => {
                 const IconComponent = getIcon(link.icon);
                 if (!IconComponent) return null;
+                const normalizedUrl = normalizeUrl(link.url);
                 return (
                   <a
                     key={index}
-                    href={link.url}
+                    href={normalizedUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hover:text-coral-400 transition-colors"
