@@ -83,7 +83,7 @@ const LinkPagesManagement: React.FC = () => {
   };
 
   const handlePreview = (brandSlug: string) => {
-    window.open(`/links/${brandSlug}`, '_blank');
+    window.open(`/${brandSlug}`, '_blank');
   };
 
   return (

@@ -28,8 +28,8 @@ function App() {
           <Route path="/careers" element={<Careers />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/links" element={<Links />} />
-          <Route path="/links/:brandSlug" element={<LinksMyLittleTales />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
+          <Route path="/:brandSlug" element={<LinksMyLittleTales />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-right" />

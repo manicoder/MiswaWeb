@@ -72,7 +72,7 @@ const Links: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.2, duration: 0.6 }}
             >
-              <Link to={`/links/${brand.slug}`}>
+              <Link to={`/${brand.slug}`}>
                 <div className={`group relative overflow-hidden bg-gradient-to-br ${brand.gradient} ${brand.hoverGradient} rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all transform hover:scale-[1.02] min-h-[400px] flex flex-col`}>
                   {/* Logo */}
                   <div className="mb-6 flex justify-center">
