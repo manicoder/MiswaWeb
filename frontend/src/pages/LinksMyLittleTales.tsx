@@ -114,9 +114,30 @@ const LinksMyLittleTales: React.FC = () => {
   );
   const qrCodes = linkPage.qr_codes || [];
 
+  // Background style - use image if provided, otherwise use gradient
+  const backgroundStyle = useMemo(() => {
+    if (linkPage.background_image_url) {
+      return {
+        backgroundImage: `url(${linkPage.background_image_url})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed'
+      };
+    }
+    return {};
+  }, [linkPage.background_image_url]);
+
   return (
-    <div className={`min-h-screen ${bgGradient} font-lato`} data-testid="links-mylittletales-page">
-      <div className="max-w-md mx-auto px-4 py-12">
+    <div 
+      className={`min-h-screen ${!linkPage.background_image_url ? bgGradient : ''} font-lato relative`}
+      style={backgroundStyle}
+      data-testid="links-mylittletales-page"
+    >
+      {linkPage.background_image_url && (
+        <div className="absolute inset-0 bg-white/60 backdrop-blur-sm"></div>
+      )}
+      <div className="relative max-w-md mx-auto px-4 py-12">
         {/* Profile Section */}
         <motion.div
           initial={{ opacity: 0 }}

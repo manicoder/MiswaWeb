@@ -182,6 +182,7 @@ class LinkPage(BaseModel):
     bg_gradient_from: str = "from-orange-50"
     bg_gradient_via: str = "via-white"
     bg_gradient_to: str = "to-orange-50/30"
+    background_image_url: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -207,6 +208,7 @@ class LinkPageCreate(BaseModel):
     bg_gradient_from: Optional[str] = "from-orange-50"
     bg_gradient_via: Optional[str] = "via-white"
     bg_gradient_to: Optional[str] = "to-orange-50/30"
+    background_image_url: Optional[str] = None
 
 class LinkPageUpdate(BaseModel):
     brand_name: Optional[str] = None
@@ -229,6 +231,7 @@ class LinkPageUpdate(BaseModel):
     bg_gradient_from: Optional[str] = None
     bg_gradient_via: Optional[str] = None
     bg_gradient_to: Optional[str] = None
+    background_image_url: Optional[str] = None
 
 # ==================== BRANDS ====================
 

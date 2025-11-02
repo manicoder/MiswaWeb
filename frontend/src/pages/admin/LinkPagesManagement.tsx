@@ -36,6 +36,7 @@ const LinkPagesManagement: React.FC = () => {
     bg_gradient_from: 'from-orange-50',
     bg_gradient_via: 'via-white',
     bg_gradient_to: 'to-orange-50/30',
+    background_image_url: '',
   });
 
   useEffect(() => {
@@ -95,6 +96,7 @@ const LinkPagesManagement: React.FC = () => {
         bg_gradient_from: 'from-orange-50',
         bg_gradient_via: 'via-white',
         bg_gradient_to: 'to-orange-50/30',
+        background_image_url: '',
       });
       fetchLinkPages();
     } catch (error) {
@@ -126,6 +128,7 @@ const LinkPagesManagement: React.FC = () => {
       bg_gradient_from: page.bg_gradient_from || 'from-orange-50',
       bg_gradient_via: page.bg_gradient_via || 'via-white',
       bg_gradient_to: page.bg_gradient_to || 'to-orange-50/30',
+      background_image_url: page.background_image_url || '',
     });
     setShowDialog(true);
   };
@@ -537,9 +540,31 @@ const LinkPagesManagement: React.FC = () => {
                     placeholder="to-orange-50/30"
                   />
                 </div>
+                <div className="col-span-2">
+                  <Label>Background Image URL (optional - overrides gradient if provided)</Label>
+                  <Input 
+                    type="url"
+                    value={formData.background_image_url} 
+                    onChange={(e) => setFormData({ ...formData, background_image_url: e.target.value })} 
+                    placeholder="https://example.com/background.jpg"
+                  />
+                  {formData.background_image_url && (
+                    <div className="mt-2">
+                      <p className="text-xs text-gray-500 mb-1">Preview:</p>
+                      <img 
+                        src={formData.background_image_url} 
+                        alt="Background preview" 
+                        className="w-full h-32 object-cover rounded border"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Use Tailwind CSS gradient classes (e.g., from-blue-500, via-purple-500, to-pink-500)
+                Use Tailwind CSS gradient classes (e.g., from-blue-500, via-purple-500, to-pink-500). Background image will override gradient if provided.
               </p>
             </div>
 

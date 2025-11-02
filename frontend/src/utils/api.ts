@@ -169,6 +169,7 @@ export interface LinkPage {
   bg_gradient_from?: string;
   bg_gradient_via?: string;
   bg_gradient_to?: string;
+  background_image_url?: string;
   created_at?: string;
   updated_at?: string;
 }
