@@ -160,6 +160,10 @@ export interface LinkPage {
   whatsapp_text?: string;
   google_review_url?: string;
   google_review_text?: string;
+  qr_codes?: Array<{
+    title: string;
+    url: string;
+  }>;
   gradient_from?: string;
   gradient_to?: string;
   bg_gradient_from?: string;

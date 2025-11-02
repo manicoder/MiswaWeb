@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Edit, ExternalLink } from 'lucide-react';
+import { Edit, ExternalLink, Plus, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
@@ -29,6 +29,7 @@ const LinkPagesManagement: React.FC = () => {
     whatsapp_text: 'Visit',
     google_review_url: '',
     google_review_text: 'Visit',
+    qr_codes: [] as Array<{ title: string; url: string }>,
     gradient_from: 'from-coral-400',
     gradient_to: 'to-orange-500',
     bg_gradient_from: 'from-orange-50',
@@ -83,6 +84,7 @@ const LinkPagesManagement: React.FC = () => {
       whatsapp_text: page.whatsapp_text || 'Visit',
       google_review_url: page.google_review_url || '',
       google_review_text: page.google_review_text || 'Visit',
+      qr_codes: page.qr_codes || [],
       gradient_from: page.gradient_from || 'from-coral-400',
       gradient_to: page.gradient_to || 'to-orange-500',
       bg_gradient_from: page.bg_gradient_from || 'from-orange-50',
@@ -307,6 +309,74 @@ const LinkPagesManagement: React.FC = () => {
                     />
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <div className="border-t pt-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold text-lg">QR Codes</h3>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      qr_codes: [...formData.qr_codes, { title: '', url: '' }]
+                    });
+                  }}
+                  className="bg-coral-500 hover:bg-coral-600"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add QR Code
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {formData.qr_codes.map((qr, index) => (
+                  <div key={index} className="grid grid-cols-12 gap-3 items-end p-3 bg-gray-50 rounded-lg">
+                    <div className="col-span-4">
+                      <Label>Title</Label>
+                      <Input
+                        value={qr.title}
+                        onChange={(e) => {
+                          const updated = [...formData.qr_codes];
+                          updated[index] = { ...updated[index], title: e.target.value };
+                          setFormData({ ...formData, qr_codes: updated });
+                        }}
+                        placeholder="e.g., Instagram"
+                      />
+                    </div>
+                    <div className="col-span-7">
+                      <Label>URL</Label>
+                      <Input
+                        type="url"
+                        value={qr.url}
+                        onChange={(e) => {
+                          const updated = [...formData.qr_codes];
+                          updated[index] = { ...updated[index], url: e.target.value };
+                          setFormData({ ...formData, qr_codes: updated });
+                        }}
+                        placeholder="https://example.com"
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const updated = formData.qr_codes.filter((_, i) => i !== index);
+                          setFormData({ ...formData, qr_codes: updated });
+                        }}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {formData.qr_codes.length === 0 && (
+                  <p className="text-sm text-gray-500 text-center py-4">No QR codes added. Click "Add QR Code" to create one.</p>
+                )}
               </div>
             </div>
 

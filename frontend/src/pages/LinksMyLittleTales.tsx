@@ -103,9 +103,8 @@ const LinksMyLittleTales: React.FC = () => {
     hoverColor: string;
   }>;
 
-  const googleReviewUrl = linkPage.google_review_url || '';
-  const instagramUrl = linkPage.instagram_url || '';
   const bgGradient = `bg-gradient-to-b ${linkPage.bg_gradient_from || 'from-orange-50'} ${linkPage.bg_gradient_via || 'via-white'} ${linkPage.bg_gradient_to || 'to-orange-50/30'}`;
+  const qrCodes = linkPage.qr_codes || [];
 
   return (
     <div className={`min-h-screen ${bgGradient}`} data-testid="links-mylittletales-page">
@@ -191,57 +190,40 @@ const LinksMyLittleTales: React.FC = () => {
         )}
 
         {/* QR Codes Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-          className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100"
-        >
-          <div className="flex items-center justify-center space-x-2 mb-6">
-            <QrCode className="w-6 h-6 text-coral-500" />
-            <h2 className="text-2xl font-bold text-gray-900">Quick Access QR Codes</h2>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            {/* Google Review QR Code */}
-            <div className="text-center">
-              <div className="bg-white p-4 rounded-2xl border-2 border-gray-200 mb-3 flex items-center justify-center">
-                <QRCodeSVG
-                  value={googleReviewUrl}
-                  size={120}
-                  level="H"
-                  includeMargin={false}
-                  bgColor="#FFFFFF"
-                  fgColor="#000000"
-                />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-1 flex items-center justify-center space-x-1">
-                <Star className="w-4 h-4 text-yellow-500" />
-                <span>Google Review</span>
-              </h3>
-              <p className="text-xs text-gray-500">Scan to review us</p>
+        {qrCodes.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+            className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100"
+          >
+            <div className="flex items-center justify-center space-x-2 mb-6">
+              <QrCode className="w-6 h-6 text-coral-500" />
+              <h2 className="text-2xl font-bold text-gray-900">Quick Access QR Codes</h2>
             </div>
 
-            {/* Instagram QR Code */}
-            <div className="text-center">
-              <div className="bg-white p-4 rounded-2xl border-2 border-gray-200 mb-3 flex items-center justify-center">
-                <QRCodeSVG
-                  value={instagramUrl}
-                  size={120}
-                  level="H"
-                  includeMargin={false}
-                  bgColor="#FFFFFF"
-                  fgColor="#000000"
-                />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-1 flex items-center justify-center space-x-1">
-                <Instagram className="w-4 h-4 text-pink-500" />
-                <span>Instagram</span>
-              </h3>
-              <p className="text-xs text-gray-500">Scan to follow us</p>
+            <div className={`grid gap-6 ${qrCodes.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+              {qrCodes.map((qr, index) => (
+                <div key={index} className="text-center">
+                  <div className="bg-white p-4 rounded-2xl border-2 border-gray-200 mb-3 flex items-center justify-center">
+                    <QRCodeSVG
+                      value={qr.url}
+                      size={120}
+                      level="H"
+                      includeMargin={false}
+                      bgColor="#FFFFFF"
+                      fgColor="#000000"
+                    />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-1">
+                    {qr.title}
+                  </h3>
+                  <p className="text-xs text-gray-500">Scan to access</p>
+                </div>
+              ))}
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
         {/* Footer Note */}
         <motion.div

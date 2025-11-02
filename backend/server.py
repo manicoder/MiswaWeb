@@ -172,6 +172,7 @@ class LinkPage(BaseModel):
     whatsapp_text: Optional[str] = "Visit"
     google_review_url: Optional[str] = None
     google_review_text: Optional[str] = "Visit"
+    qr_codes: List[QRCode] = Field(default_factory=list)
     gradient_from: str = "from-coral-400"
     gradient_to: str = "to-orange-500"
     bg_gradient_from: str = "from-orange-50"
@@ -196,11 +197,16 @@ class LinkPageCreate(BaseModel):
     whatsapp_text: Optional[str] = "Visit"
     google_review_url: Optional[str] = None
     google_review_text: Optional[str] = "Visit"
+    qr_codes: Optional[List[QRCode]] = None
     gradient_from: Optional[str] = "from-coral-400"
     gradient_to: Optional[str] = "to-orange-500"
     bg_gradient_from: Optional[str] = "from-orange-50"
     bg_gradient_via: Optional[str] = "via-white"
     bg_gradient_to: Optional[str] = "to-orange-50/30"
+
+class QRCode(BaseModel):
+    title: str
+    url: str
 
 class LinkPageUpdate(BaseModel):
     brand_name: Optional[str] = None
@@ -217,6 +223,7 @@ class LinkPageUpdate(BaseModel):
     whatsapp_text: Optional[str] = None
     google_review_url: Optional[str] = None
     google_review_text: Optional[str] = None
+    qr_codes: Optional[List[QRCode]] = None
     gradient_from: Optional[str] = None
     gradient_to: Optional[str] = None
     bg_gradient_from: Optional[str] = None
@@ -612,6 +619,10 @@ async def initialize_data():
             facebook_url="https://www.facebook.com/MyLittleTalesToys",
             whatsapp_url="https://wa.me/918199848535?text=Hi!",
             google_review_url="https://www.google.com/maps/search/?api=1&query=MyLittleTales+Toys+Review",
+            qr_codes=[
+                QRCode(title="Google Review", url="https://www.google.com/maps/search/?api=1&query=MyLittleTales+Toys+Review"),
+                QRCode(title="Instagram", url="https://www.instagram.com/mylittletalestoys")
+            ],
             gradient_from="from-coral-400",
             gradient_to="to-orange-500",
             bg_gradient_from="from-orange-50",
@@ -635,6 +646,10 @@ async def initialize_data():
             facebook_url="https://www.facebook.com/MyLittleTalesToys",
             whatsapp_url="https://wa.me/918199848535?text=Hi!",
             google_review_url="https://www.google.com/maps/search/?api=1&query=Tynee+Tots+Review",
+            qr_codes=[
+                QRCode(title="Google Review", url="https://www.google.com/maps/search/?api=1&query=Tynee+Tots+Review"),
+                QRCode(title="Instagram", url="https://www.instagram.com/mylittletalestoys")
+            ],
             gradient_from="from-purple-400",
             gradient_to="to-indigo-500",
             bg_gradient_from="from-purple-50",
