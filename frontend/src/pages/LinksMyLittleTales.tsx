@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Globe, 
@@ -20,12 +20,7 @@ const LinksMyLittleTales: React.FC = () => {
   const [linkPage, setLinkPage] = useState<LinkPage | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    fetchLinkPage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [brandSlug]);
-
-  const fetchLinkPage = async () => {
+  const fetchLinkPage = useCallback(async () => {
     try {
       const slug = brandSlug || 'mylittletales';
       const response = await getLinkPageBySlug(slug);
@@ -35,7 +30,11 @@ const LinksMyLittleTales: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [brandSlug]);
+
+  useEffect(() => {
+    fetchLinkPage();
+  }, [fetchLinkPage]);
 
   if (loading) {
     return (
