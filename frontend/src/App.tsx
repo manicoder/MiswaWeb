@@ -8,7 +8,6 @@ import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
 import Careers from './pages/Careers';
 import Contact from './pages/Contact';
-import Links from './pages/Links';
 import LinksMyLittleTales from './pages/LinksMyLittleTales';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import { Toaster } from './components/ui/sonner';
@@ -27,7 +26,6 @@ function App() {
           <Route path="/blog/:slug" element={<BlogDetail />} />
           <Route path="/careers" element={<Careers />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/links" element={<Links />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
           <Route path="/:brandSlug" element={<LinksMyLittleTales />} />
         </Routes>

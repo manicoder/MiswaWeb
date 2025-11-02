@@ -48,7 +48,7 @@ const LinksMyLittleTales: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-orange-50/30 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Link Page Not Found</h1>
-          <Link to="/links" className="text-coral-500 hover:underline">Back to Brands</Link>
+          <Link to="/" className="text-coral-500 hover:underline">Back to Home</Link>
         </div>
       </div>
     );
@@ -106,9 +106,9 @@ const LinksMyLittleTales: React.FC = () => {
     <div className={`min-h-screen ${bgGradient}`} data-testid="links-mylittletales-page">
       <div className="max-w-md mx-auto px-4 py-12">
         {/* Back Button */}
-        <Link to="/links" className="inline-flex items-center space-x-2 text-gray-600 hover:text-coral-500 transition-colors mb-6">
+        <Link to="/" className="inline-flex items-center space-x-2 text-gray-600 hover:text-coral-500 transition-colors mb-6">
           <ArrowLeft className="w-5 h-5" />
-          <span>Back to Brands</span>
+          <span>Back to Home</span>
         </Link>
 
         {/* Profile Section */}
