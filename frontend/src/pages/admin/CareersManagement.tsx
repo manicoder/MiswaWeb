@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../componen
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { getCareers, createCareer, updateCareer, deleteCareer } from '../../utils/api';
 import { toast } from 'sonner';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const CareersManagement: React.FC = () => {
   const [careers, setCareers] = useState<any[]>([]);
@@ -42,9 +44,10 @@ const CareersManagement: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      // Send HTML content directly without splitting requirements
       const dataToSend = {
         ...formData,
-        requirements: formData.requirements.split('\n').filter(r => r.trim()),
+        requirements: formData.requirements, // Keep as HTML string
       };
       if (editingCareer) {
         await updateCareer(editingCareer.id, dataToSend);
@@ -69,8 +72,11 @@ const CareersManagement: React.FC = () => {
       department: career.department,
       location: career.location,
       type: career.type,
-      description: career.description,
-      requirements: Array.isArray(career.requirements) ? career.requirements.join('\n') : career.requirements || '',
+      description: career.description || '',
+      // Handle both HTML string and array format for backwards compatibility
+      requirements: Array.isArray(career.requirements) 
+        ? career.requirements.map((r: string) => `<p>${r}</p>`).join('') 
+        : career.requirements || '',
       active: career.active,
     });
     setShowDialog(true);
@@ -181,11 +187,57 @@ const CareersManagement: React.FC = () => {
             </div>
             <div>
               <Label>Description *</Label>
-              <Textarea required rows={6} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Job description and responsibilities" />
+              <div className="mb-4 [&_.ql-container]:min-h-[200px] [&_.ql-editor]:min-h-[200px]">
+                <ReactQuill
+                  theme="snow"
+                  value={formData.description}
+                  onChange={(value) => setFormData({ ...formData, description: value })}
+                  placeholder="Job description and responsibilities"
+                  modules={{
+                    toolbar: [
+                      [{ 'header': [1, 2, 3, false] }],
+                      ['bold', 'italic', 'underline', 'strike'],
+                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                      [{ 'indent': '-1'}, { 'indent': '+1' }],
+                      ['link'],
+                      ['clean']
+                    ],
+                  }}
+                  formats={[
+                    'header',
+                    'bold', 'italic', 'underline', 'strike',
+                    'list', 'bullet', 'indent',
+                    'link'
+                  ]}
+                />
+              </div>
             </div>
             <div>
               <Label>Requirements *</Label>
-              <Textarea required rows={6} value={formData.requirements} onChange={(e) => setFormData({ ...formData, requirements: e.target.value })} placeholder="Required qualifications and skills" />
+              <div className="mb-4 [&_.ql-container]:min-h-[200px] [&_.ql-editor]:min-h-[200px]">
+                <ReactQuill
+                  theme="snow"
+                  value={formData.requirements}
+                  onChange={(value) => setFormData({ ...formData, requirements: value })}
+                  placeholder="Required qualifications and skills"
+                  modules={{
+                    toolbar: [
+                      [{ 'header': [1, 2, 3, false] }],
+                      ['bold', 'italic', 'underline', 'strike'],
+                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                      [{ 'indent': '-1'}, { 'indent': '+1' }],
+                      ['link'],
+                      ['clean']
+                    ],
+                  }}
+                  formats={[
+                    'header',
+                    'bold', 'italic', 'underline', 'strike',
+                    'list', 'bullet', 'indent',
+                    'link'
+                  ]}
+                />
+              </div>
             </div>
             <div className="flex items-center space-x-2">
               <input type="checkbox" id="active" checked={formData.active} onChange={(e) => setFormData({ ...formData, active: e.target.checked })} className="w-4 h-4" />

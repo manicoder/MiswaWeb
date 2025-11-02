@@ -124,7 +124,21 @@ const Careers: React.FC = () => {
                       Apply Now
                     </Button>
                   </div>
-                  <p className="mt-4 text-gray-600 leading-relaxed">{job.description}</p>
+                  {job.description && (
+                    <div 
+                      className="mt-4 text-gray-600 leading-relaxed [&_p]:mb-2 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_strong]:font-bold [&_em]:italic [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mb-2"
+                      dangerouslySetInnerHTML={{ __html: job.description }}
+                    />
+                  )}
+                  {job.requirements && (
+                    <div className="mt-4">
+                      <h4 className="text-lg font-semibold text-gray-900 mb-2">Requirements:</h4>
+                      <div 
+                        className="text-gray-600 leading-relaxed [&_p]:mb-2 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_strong]:font-bold [&_em]:italic [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mb-2"
+                        dangerouslySetInnerHTML={{ __html: Array.isArray(job.requirements) ? job.requirements.map((r: string) => `<p>${r}</p>`).join('') : job.requirements }}
+                      />
+                    </div>
+                  )}
                 </motion.div>
               ))}
             </div>
