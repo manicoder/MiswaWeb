@@ -1,10 +1,28 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+// Get backend URL from environment variable (build-time) or runtime config (window object)
+// This allows configuration at build-time via REACT_APP_BACKEND_URL
+// or at runtime via window.APP_CONFIG.BACKEND_URL (useful for production deployments)
+function getBackendUrl(): string {
+  // Check for runtime configuration first (useful for production deployments)
+  if (typeof window !== 'undefined' && (window as any).APP_CONFIG?.BACKEND_URL) {
+    return (window as any).APP_CONFIG.BACKEND_URL;
+  }
+  
+  // Fall back to build-time environment variable
+  if (process.env.REACT_APP_BACKEND_URL) {
+    return process.env.REACT_APP_BACKEND_URL;
+  }
+  
+  // Default to localhost for development
+  return 'http://localhost:8000';
+}
+
+const BACKEND_URL = getBackendUrl();
 export const API = `${BACKEND_URL}/api`;
 
-// Log for debugging (remove in production)
-if (!process.env.REACT_APP_BACKEND_URL) {
+// Log for debugging
+if (!process.env.REACT_APP_BACKEND_URL && !(typeof window !== 'undefined' && (window as any).APP_CONFIG?.BACKEND_URL)) {
   console.warn('⚠️ REACT_APP_BACKEND_URL not set, using default: http://localhost:8000');
 }
 console.log('🔗 Backend API URL:', API);

@@ -19,6 +19,29 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
         <title>Miswa International | Leading Manufacturer & Exporter</title>
+        <!-- Runtime configuration for backend URL -->
+        <!-- This can be overridden by setting window.APP_CONFIG.BACKEND_URL before React loads -->
+        <script>
+            // Initialize APP_CONFIG if it doesn't exist
+            window.APP_CONFIG = window.APP_CONFIG || {};
+            // Set backend URL based on environment
+            // For local development (localhost), use local backend
+            // For production, use production backend URL
+            if (!window.APP_CONFIG.BACKEND_URL) {
+                // Detect if running on localhost
+                const isLocalhost = window.location.hostname === 'localhost' || 
+                                   window.location.hostname === '127.0.0.1' ||
+                                   window.location.hostname === '';
+                
+                if (isLocalhost) {
+                    // Use local backend for development
+                    window.APP_CONFIG.BACKEND_URL = 'http://localhost:8000';
+                } else {
+                    // Use production backend URL
+                    window.APP_CONFIG.BACKEND_URL = 'https://miswa-backend-production.up.railway.app';
+                }
+            }
+        </script>
         <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script>
         <!--
         These two scripts have been added for the testing, please do not edit or remove them

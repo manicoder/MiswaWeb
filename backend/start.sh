@@ -14,7 +14,7 @@ if [ ! -f ".env" ]; then
     cat > .env << EOF
 MONGO_URL=mongodb://localhost:27017
 DB_NAME=miswa
-CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+CORS_ORIGINS=http://localhost:3000,http://localhost:3001
 EOF
 fi
 

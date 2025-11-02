@@ -477,10 +477,30 @@ async def initialize_data():
 
 app.include_router(api_router)
 
+# CORS configuration - supports comma-separated origins
+cors_origins_env = os.environ.get('CORS_ORIGINS', '*')
+if cors_origins_env != '*':
+    # Split by comma and strip whitespace from each origin
+    cors_origins = [origin.strip() for origin in cors_origins_env.split(',') if origin.strip()]
+    use_credentials = True
+    logger.info(f"CORS configured for origins: {cors_origins}")
+else:
+    # When CORS_ORIGINS is '*', allow all origins
+    # IMPORTANT: When using ['*'], we MUST set allow_credentials=False
+    # This is a security restriction in the CORS specification
+    # You cannot use allow_credentials=True with allow_origins=['*']
+    cors_origins = ["*"]
+    use_credentials = False
+    logger.info("CORS configured to allow all origins (*) with credentials disabled")
+    logger.info("⚠️  For production, set CORS_ORIGINS to specific origins for better security")
+
+# Configure CORS middleware
+# Note: When allow_credentials=True, you cannot use allow_origins=['*']
+# This is a security restriction in the CORS specification
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_credentials=use_credentials,
+    allow_origins=cors_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
