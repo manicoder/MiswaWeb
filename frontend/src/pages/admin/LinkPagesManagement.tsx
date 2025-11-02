@@ -58,8 +58,9 @@ const LinkPagesManagement: React.FC = () => {
     
     try {
       if (editingPage) {
-        // Update existing page
-        await updateLinkPage(editingPage.brand_slug, formData);
+        // Update existing page - exclude brand_slug from update payload
+        const { brand_slug, ...updateData } = formData;
+        await updateLinkPage(editingPage.brand_slug, updateData);
         toast.success('Link page updated successfully');
       } else {
         // Create new page
@@ -229,7 +230,35 @@ const LinkPagesManagement: React.FC = () => {
         </div>
       )}
 
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+      <Dialog open={showDialog} onOpenChange={(open) => {
+        setShowDialog(open);
+        if (!open) {
+          setEditingPage(null);
+          setFormData({
+            brand_slug: '',
+            brand_name: '',
+            tagline: '',
+            description: '',
+            logo_url: '',
+            website_url: '',
+            website_text: 'Visit',
+            instagram_url: '',
+            instagram_text: 'Visit',
+            facebook_url: '',
+            facebook_text: 'Visit',
+            whatsapp_url: '',
+            whatsapp_text: 'Visit',
+            google_review_url: '',
+            google_review_text: 'Visit',
+            qr_codes: [],
+            gradient_from: 'from-coral-400',
+            gradient_to: 'to-orange-500',
+            bg_gradient_from: 'from-orange-50',
+            bg_gradient_via: 'via-white',
+            bg_gradient_to: 'to-orange-50/30',
+          });
+        }
+      }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingPage ? `Edit Link Page: ${editingPage.brand_name}` : 'Create New Link Page'}</DialogTitle>
