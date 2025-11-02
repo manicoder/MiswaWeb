@@ -680,7 +680,8 @@ else:
     cors_origins = ["*"]
     use_credentials = False
     logger.info("CORS configured to allow all origins (*) with credentials disabled")
-    logger.info("⚠️  For production, set CORS_ORIGINS to specific origins for better security")
+    logger.warning("⚠️  For production, set CORS_ORIGINS environment variable to specific origins for better security")
+    logger.warning("⚠️  Example: CORS_ORIGINS=https://miswainternational.com,https://www.miswainternational.com")
 
 # Configure CORS middleware
 # Note: When allow_credentials=True, you cannot use allow_origins=['*']
