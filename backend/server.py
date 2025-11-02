@@ -233,6 +233,23 @@ class LinkPageUpdate(BaseModel):
     bg_gradient_to: Optional[str] = None
     background_image_url: Optional[str] = None
 
+class UPIPaymentInfo(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = "upi_payment_info"
+    company_name: str
+    brand_name: str
+    gst_number: str
+    upi_id: str
+    qr_code_url: str
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class UPIPaymentInfoUpdate(BaseModel):
+    company_name: Optional[str] = None
+    brand_name: Optional[str] = None
+    gst_number: Optional[str] = None
+    upi_id: Optional[str] = None
+    qr_code_url: Optional[str] = None
+
 # ==================== BRANDS ====================
 
 @api_router.get("/brands", response_model=List[Brand])
@@ -545,6 +562,41 @@ async def delete_link_page(brand_slug: str):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Link page not found")
     return {"message": "Link page deleted successfully"}
+
+# ==================== UPI PAYMENT INFO ====================
+
+@api_router.get("/upi-payment-info", response_model=UPIPaymentInfo)
+async def get_upi_payment_info():
+    info = await db.upi_payment_info.find_one({"id": "upi_payment_info"}, {"_id": 0})
+    if not info:
+        # Return default
+        default_info = UPIPaymentInfo(
+            company_name="Miswa International",
+            brand_name="Miswa International",
+            gst_number="",
+            upi_id="",
+            qr_code_url=""
+        )
+        return default_info
+    if isinstance(info.get('updated_at'), str):
+        info['updated_at'] = datetime.fromisoformat(info['updated_at'])
+    return UPIPaymentInfo(**info)
+
+@api_router.put("/upi-payment-info", response_model=UPIPaymentInfo)
+async def update_upi_payment_info(input: UPIPaymentInfoUpdate):
+    update_data = {k: v for k, v in input.model_dump().items() if v is not None}
+    update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+    
+    await db.upi_payment_info.update_one(
+        {"id": "upi_payment_info"},
+        {"$set": update_data},
+        upsert=True
+    )
+    
+    info = await db.upi_payment_info.find_one({"id": "upi_payment_info"}, {"_id": 0})
+    if isinstance(info.get('updated_at'), str):
+        info['updated_at'] = datetime.fromisoformat(info['updated_at'])
+    return UPIPaymentInfo(**info)
 
 # ==================== MYLITTLETALES PRODUCTS ====================
 

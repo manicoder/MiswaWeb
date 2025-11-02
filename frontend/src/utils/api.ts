@@ -78,8 +78,9 @@ export interface Career {
   location?: string;
   type?: string;
   description: string;
-  requirements?: string[];
+  requirements?: string | string[]; // Backend accepts both string and array
   isActive?: boolean;
+  active?: boolean; // Some endpoints use 'active' instead of 'isActive'
   createdAt?: string;
 }
 
@@ -179,4 +180,18 @@ export const getLinkPageBySlug = (brandSlug: string): Promise<AxiosResponse<Link
 export const createLinkPage = (data: Partial<LinkPage>): Promise<AxiosResponse<LinkPage>> => api.post('/link-pages', data);
 export const updateLinkPage = (brandSlug: string, data: Partial<LinkPage>): Promise<AxiosResponse<LinkPage>> => api.put(`/link-pages/${brandSlug}`, data);
 export const deleteLinkPage = (brandSlug: string): Promise<AxiosResponse<void>> => api.delete(`/link-pages/${brandSlug}`);
+
+// UPI Payment Info
+export interface UPIPaymentInfo {
+  id?: string;
+  company_name: string;
+  brand_name: string;
+  gst_number: string;
+  upi_id: string;
+  qr_code_url: string;
+  updated_at?: string;
+}
+
+export const getUPIPaymentInfo = (): Promise<AxiosResponse<UPIPaymentInfo>> => api.get('/upi-payment-info');
+export const updateUPIPaymentInfo = (data: Partial<UPIPaymentInfo>): Promise<AxiosResponse<UPIPaymentInfo>> => api.put('/upi-payment-info', data);
 
