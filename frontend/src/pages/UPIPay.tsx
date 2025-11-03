@@ -6,7 +6,7 @@ import { useToast } from '../hooks/use-toast';
 
 // UPI App Icons as SVG Components
 const PhonePeIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 1366 768" xmlns="http://www.w3.org/2000/svg" style={{ width: '32px', height: '32px' }}>
+  <svg width="32"  viewBox="0 0 1366 768" xmlns="http://www.w3.org/2000/svg" style={{ width: '32px', height: '32px' }}>
     <defs>
       <clipPath id="phonepe-clip">
         <rect width="1366" height="768" fill="none"></rect>
@@ -250,19 +250,20 @@ const UPIPay: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-center space-y-2"
+              className="text-center"
             >
-              <p className="text-white text-sm sm:text-base md:text-lg font-medium opacity-90">
-                UPI Id: <span className="font-bold font-mono">{upiInfo.upi_id}</span>
-              </p>
-              <button
-                onClick={() => copyToClipboard(upiInfo.upi_id)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg text-white text-sm transition-colors active:scale-95"
-                aria-label="Copy UPI ID"
-              >
-                <Copy className="w-4 h-4" />
-                <span>Copy</span>
-              </button>
+              <div className="inline-flex items-center gap-2">
+                <p className="text-white text-sm sm:text-base md:text-lg font-bold font-mono">
+                  {upiInfo.upi_id}
+                </p>
+                <button
+                  onClick={() => copyToClipboard(upiInfo.upi_id)}
+                  className="p-1 hover:bg-gray-700/50 rounded-lg text-white transition-colors active:scale-95"
+                  aria-label="Copy UPI ID"
+                >
+                  <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              </div>
             </motion.div>
           )}
 
