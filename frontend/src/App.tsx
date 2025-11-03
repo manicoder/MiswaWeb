@@ -11,27 +11,40 @@ import Contact from './pages/Contact';
 import LinksMyLittleTales from './pages/LinksMyLittleTales';
 import UPIPay from './pages/UPIPay';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminLogin from './pages/admin/AdminLogin';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from './components/ui/sonner';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/brands" element={<Brands />} />
-          <Route path="/catalogs" element={<Catalogs />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:slug" element={<BlogDetail />} />
-          <Route path="/careers" element={<Careers />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/pay" element={<UPIPay />} />
-          <Route path="/admin/*" element={<AdminDashboard />} />
-          <Route path="/:brandSlug" element={<LinksMyLittleTales />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/brands" element={<Brands />} />
+            <Route path="/catalogs" element={<Catalogs />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogDetail />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/pay" element={<UPIPay />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin/*"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/:brandSlug" element={<LinksMyLittleTales />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
       <Toaster position="top-right" />
     </div>
   );

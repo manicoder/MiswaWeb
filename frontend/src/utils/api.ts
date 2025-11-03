@@ -264,3 +264,56 @@ export interface SocialMediaInfo {
 export const getSocialMediaInfo = (): Promise<AxiosResponse<SocialMediaInfo>> => api.get('/social-media-info');
 export const updateSocialMediaInfo = (data: Partial<SocialMediaInfo>): Promise<AxiosResponse<SocialMediaInfo>> => api.put('/social-media-info', data);
 
+// Authentication
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+}
+
+export interface AdminUser {
+  username: string;
+  id: string;
+}
+
+// Login function
+export const adminLogin = (data: LoginRequest): Promise<AxiosResponse<LoginResponse>> => 
+  api.post('/admin/login', data);
+
+// Get current admin info
+export const getCurrentAdmin = (): Promise<AxiosResponse<AdminUser>> => 
+  api.get('/admin/me');
+
+// Add token to axios instance for authenticated requests
+export const setAuthToken = (token: string | null) => {
+  if (token) {
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    delete api.defaults.headers.common['Authorization'];
+  }
+};
+
+// Add response interceptor to handle 401 errors (unauthorized)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token is invalid or expired, clear it
+      const token = localStorage.getItem('admin_token');
+      if (token) {
+        localStorage.removeItem('admin_token');
+        setAuthToken(null);
+        // Redirect to login if not already there
+        if (window.location.pathname !== '/admin/login') {
+          window.location.href = '/admin/login';
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+

@@ -1,6 +1,7 @@
-from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form, Depends, status
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -10,12 +11,14 @@ from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional, Union
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import aiohttp
 from bs4 import BeautifulSoup
 import io
 import csv
 import shutil
+from jose import JWTError, jwt
+from passlib.context import CryptContext
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -40,6 +43,17 @@ db_name = os.environ.get('DB_NAME', 'miswa')
 logger.info(f"Connecting to MongoDB: {mongo_url.replace(mongo_url.split('@')[-1] if '@' in mongo_url else mongo_url, '***') if '@' in mongo_url else mongo_url} | Database: {db_name}")
 client = AsyncIOMotorClient(mongo_url)
 db = client[db_name]
+
+# JWT Configuration
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-production')
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
+
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# HTTP Bearer for token authentication
+security = HTTPBearer()
 
 # Create the main app
 app = FastAPI()
@@ -277,6 +291,93 @@ class SocialMediaInfo(BaseModel):
 class SocialMediaInfoUpdate(BaseModel):
     links: Optional[List[SocialMediaLink]] = None
 
+# ==================== AUTHENTICATION MODELS ====================
+
+class AdminUser(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    username: str
+    password_hash: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class AdminLogin(BaseModel):
+    username: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+# ==================== AUTHENTICATION UTILITIES ====================
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+async def get_current_admin(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    
+    # Verify admin user still exists
+    admin = await db.admin_users.find_one({"username": username}, {"_id": 0})
+    if admin is None:
+        raise credentials_exception
+    
+    return admin
+
+# ==================== AUTHENTICATION ROUTES ====================
+
+@api_router.post("/admin/login", response_model=Token)
+async def admin_login(login_data: AdminLogin):
+    admin = await db.admin_users.find_one({"username": login_data.username}, {"_id": 0})
+    if not admin:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password"
+        )
+    
+    if not verify_password(login_data.password, admin.get("password_hash")):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password"
+        )
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": login_data.username}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@api_router.get("/admin/me")
+async def get_current_admin_info(current_admin: dict = Depends(get_current_admin)):
+    return {
+        "username": current_admin.get("username"),
+        "id": current_admin.get("id")
+    }
+
 # ==================== BRANDS ====================
 
 @api_router.get("/brands", response_model=List[Brand])
@@ -288,7 +389,7 @@ async def get_brands():
     return brands
 
 @api_router.post("/brands", response_model=Brand)
-async def create_brand(input: BrandCreate):
+async def create_brand(input: BrandCreate, current_admin: dict = Depends(get_current_admin)):
     brand = Brand(**input.model_dump())
     doc = brand.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
@@ -296,7 +397,7 @@ async def create_brand(input: BrandCreate):
     return brand
 
 @api_router.put("/brands/{brand_id}", response_model=Brand)
-async def update_brand(brand_id: str, input: BrandCreate):
+async def update_brand(brand_id: str, input: BrandCreate, current_admin: dict = Depends(get_current_admin)):
     brand_dict = input.model_dump()
     brand_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
     result = await db.brands.update_one({"id": brand_id}, {"$set": brand_dict})
@@ -308,7 +409,7 @@ async def update_brand(brand_id: str, input: BrandCreate):
     return Brand(**updated)
 
 @api_router.delete("/brands/{brand_id}")
-async def delete_brand(brand_id: str):
+async def delete_brand(brand_id: str, current_admin: dict = Depends(get_current_admin)):
     result = await db.brands.delete_one({"id": brand_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Brand not found")
@@ -325,7 +426,7 @@ async def get_catalogs():
     return catalogs
 
 @api_router.post("/catalogs", response_model=Catalog)
-async def create_catalog(input: CatalogCreate):
+async def create_catalog(input: CatalogCreate, current_admin: dict = Depends(get_current_admin)):
     catalog = Catalog(**input.model_dump())
     doc = catalog.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
@@ -333,7 +434,7 @@ async def create_catalog(input: CatalogCreate):
     return catalog
 
 @api_router.put("/catalogs/{catalog_id}", response_model=Catalog)
-async def update_catalog(catalog_id: str, input: CatalogCreate):
+async def update_catalog(catalog_id: str, input: CatalogCreate, current_admin: dict = Depends(get_current_admin)):
     catalog_dict = input.model_dump()
     result = await db.catalogs.update_one({"id": catalog_id}, {"$set": catalog_dict})
     if result.matched_count == 0:
@@ -344,7 +445,7 @@ async def update_catalog(catalog_id: str, input: CatalogCreate):
     return Catalog(**updated)
 
 @api_router.delete("/catalogs/{catalog_id}")
-async def delete_catalog(catalog_id: str):
+async def delete_catalog(catalog_id: str, current_admin: dict = Depends(get_current_admin)):
     result = await db.catalogs.delete_one({"id": catalog_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Catalog not found")
@@ -375,7 +476,7 @@ async def get_blog_by_slug(slug: str):
     return Blog(**blog)
 
 @api_router.post("/blogs", response_model=Blog)
-async def create_blog(input: BlogCreate):
+async def create_blog(input: BlogCreate, current_admin: dict = Depends(get_current_admin)):
     blog = Blog(**input.model_dump())
     doc = blog.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
@@ -384,7 +485,7 @@ async def create_blog(input: BlogCreate):
     return blog
 
 @api_router.put("/blogs/{blog_id}", response_model=Blog)
-async def update_blog(blog_id: str, input: BlogCreate):
+async def update_blog(blog_id: str, input: BlogCreate, current_admin: dict = Depends(get_current_admin)):
     blog_dict = input.model_dump()
     blog_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
     result = await db.blogs.update_one({"id": blog_id}, {"$set": blog_dict})
@@ -398,7 +499,7 @@ async def update_blog(blog_id: str, input: BlogCreate):
     return Blog(**updated)
 
 @api_router.delete("/blogs/{blog_id}")
-async def delete_blog(blog_id: str):
+async def delete_blog(blog_id: str, current_admin: dict = Depends(get_current_admin)):
     result = await db.blogs.delete_one({"id": blog_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Blog not found")
@@ -416,7 +517,7 @@ async def get_careers(active_only: bool = False):
     return careers
 
 @api_router.post("/careers", response_model=Career)
-async def create_career(input: CareerCreate):
+async def create_career(input: CareerCreate, current_admin: dict = Depends(get_current_admin)):
     career_dict = input.model_dump()
     # Convert requirements array to string if needed
     if isinstance(career_dict.get('requirements'), list):
@@ -428,7 +529,7 @@ async def create_career(input: CareerCreate):
     return career
 
 @api_router.put("/careers/{career_id}", response_model=Career)
-async def update_career(career_id: str, input: CareerCreate):
+async def update_career(career_id: str, input: CareerCreate, current_admin: dict = Depends(get_current_admin)):
     career_dict = input.model_dump()
     # Convert requirements array to string if needed
     if isinstance(career_dict.get('requirements'), list):
@@ -442,7 +543,7 @@ async def update_career(career_id: str, input: CareerCreate):
     return Career(**updated)
 
 @api_router.delete("/careers/{career_id}")
-async def delete_career(career_id: str):
+async def delete_career(career_id: str, current_admin: dict = Depends(get_current_admin)):
     result = await db.careers.delete_one({"id": career_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Career not found")
@@ -503,7 +604,7 @@ async def create_inquiry(
     return inquiry
 
 @api_router.get("/inquiries", response_model=List[Inquiry])
-async def get_inquiries():
+async def get_inquiries(current_admin: dict = Depends(get_current_admin)):
     inquiries = await db.inquiries.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
     for inquiry in inquiries:
         if isinstance(inquiry.get('created_at'), str):
@@ -511,7 +612,7 @@ async def get_inquiries():
     return inquiries
 
 @api_router.get("/inquiries/export")
-async def export_inquiries_csv():
+async def export_inquiries_csv(current_admin: dict = Depends(get_current_admin)):
     inquiries = await db.inquiries.find({}, {"_id": 0}).sort("created_at", -1).to_list(10000)
     
     # Create CSV in memory
@@ -539,7 +640,7 @@ async def export_inquiries_csv():
     )
 
 @api_router.delete("/inquiries/{inquiry_id}")
-async def delete_inquiry(inquiry_id: str):
+async def delete_inquiry(inquiry_id: str, current_admin: dict = Depends(get_current_admin)):
     # Get inquiry to check for CV file
     inquiry = await db.inquiries.find_one({"id": inquiry_id}, {"_id": 0})
     if not inquiry:
@@ -558,7 +659,7 @@ async def delete_inquiry(inquiry_id: str):
     return {"message": "Inquiry deleted successfully"}
 
 @api_router.get("/inquiries/{inquiry_id}/cv")
-async def download_cv(inquiry_id: str):
+async def download_cv(inquiry_id: str, current_admin: dict = Depends(get_current_admin)):
     """Download CV file for a specific inquiry"""
     inquiry = await db.inquiries.find_one({"id": inquiry_id}, {"_id": 0})
     if not inquiry:
@@ -609,7 +710,7 @@ async def get_company_info():
     return CompanyInfo(**info)
 
 @api_router.put("/company-info", response_model=CompanyInfo)
-async def update_company_info(input: CompanyInfoUpdate):
+async def update_company_info(input: CompanyInfoUpdate, current_admin: dict = Depends(get_current_admin)):
     update_data = {k: v for k, v in input.model_dump().items() if v is not None}
     update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
     
@@ -648,7 +749,7 @@ async def get_link_page_by_slug(brand_slug: str):
     return LinkPage(**link_page)
 
 @api_router.post("/link-pages", response_model=LinkPage)
-async def create_link_page(input: LinkPageCreate):
+async def create_link_page(input: LinkPageCreate, current_admin: dict = Depends(get_current_admin)):
     link_page = LinkPage(**input.model_dump())
     doc = link_page.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
@@ -657,7 +758,7 @@ async def create_link_page(input: LinkPageCreate):
     return link_page
 
 @api_router.put("/link-pages/{brand_slug}", response_model=LinkPage)
-async def update_link_page(brand_slug: str, input: LinkPageUpdate):
+async def update_link_page(brand_slug: str, input: LinkPageUpdate, current_admin: dict = Depends(get_current_admin)):
     update_dict = {k: v for k, v in input.model_dump().items() if v is not None}
     update_dict['updated_at'] = datetime.now(timezone.utc).isoformat()
     result = await db.link_pages.update_one({"brand_slug": brand_slug}, {"$set": update_dict})
@@ -671,7 +772,7 @@ async def update_link_page(brand_slug: str, input: LinkPageUpdate):
     return LinkPage(**updated)
 
 @api_router.delete("/link-pages/{brand_slug}")
-async def delete_link_page(brand_slug: str):
+async def delete_link_page(brand_slug: str, current_admin: dict = Depends(get_current_admin)):
     result = await db.link_pages.delete_one({"brand_slug": brand_slug})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Link page not found")
@@ -697,7 +798,7 @@ async def get_upi_payment_info():
     return UPIPaymentInfo(**info)
 
 @api_router.post("/upi-payment-info/upload-logo")
-async def upload_upi_logo(file: UploadFile = File(...)):
+async def upload_upi_logo(file: UploadFile = File(...), current_admin: dict = Depends(get_current_admin)):
     """Upload logo file for UPI payment info"""
     # Validate file extension
     file_ext = Path(file.filename).suffix.lower()
@@ -727,7 +828,7 @@ async def upload_upi_logo(file: UploadFile = File(...)):
     return {"url": file_url, "filename": filename}
 
 @api_router.post("/upi-payment-info/upload-qr-code")
-async def upload_upi_qr_code(file: UploadFile = File(...)):
+async def upload_upi_qr_code(file: UploadFile = File(...), current_admin: dict = Depends(get_current_admin)):
     """Upload QR code file for UPI payment info"""
     # Validate file extension
     file_ext = Path(file.filename).suffix.lower()
@@ -757,7 +858,7 @@ async def upload_upi_qr_code(file: UploadFile = File(...)):
     return {"url": file_url, "filename": filename}
 
 @api_router.put("/upi-payment-info", response_model=UPIPaymentInfo)
-async def update_upi_payment_info(input: UPIPaymentInfoUpdate):
+async def update_upi_payment_info(input: UPIPaymentInfoUpdate, current_admin: dict = Depends(get_current_admin)):
     update_data = {k: v for k, v in input.model_dump().items() if v is not None}
     update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
     
@@ -786,7 +887,7 @@ async def get_social_media_info():
     return SocialMediaInfo(**info)
 
 @api_router.put("/social-media-info", response_model=SocialMediaInfo)
-async def update_social_media_info(input: SocialMediaInfoUpdate):
+async def update_social_media_info(input: SocialMediaInfoUpdate, current_admin: dict = Depends(get_current_admin)):
     update_data = {k: v for k, v in input.model_dump().items() if v is not None}
     update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
     
@@ -920,6 +1021,25 @@ async def initialize_data():
         await db.link_pages.insert_one(tt_link_doc)
         
         logger.info("Initialized default link pages data")
+    
+    # Initialize default admin user if empty
+    admin_count = await db.admin_users.count_documents({})
+    if admin_count == 0:
+        # Get default credentials from environment or use defaults
+        default_username = os.environ.get('ADMIN_USERNAME', 'admin')
+        default_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
+        
+        admin_user = AdminUser(
+            username=default_username,
+            password_hash=get_password_hash(default_password)
+        )
+        admin_doc = admin_user.model_dump()
+        admin_doc['created_at'] = admin_doc['created_at'].isoformat()
+        await db.admin_users.insert_one(admin_doc)
+        
+        logger.info(f"Initialized default admin user: {default_username}")
+        logger.warning("⚠️  Default admin credentials: username='admin', password='admin123'")
+        logger.warning("⚠️  Change these credentials immediately in production!")
 
 app.include_router(api_router)
 

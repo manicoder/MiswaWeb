@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Package,
@@ -14,7 +14,9 @@ import {
   Link as LinkIcon,
   CreditCard,
   Share2,
+  LogOut,
 } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
 import {
@@ -39,6 +41,13 @@ import SocialMediaManagement from './SocialMediaManagement';
 const AdminDashboard: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const location = useLocation();
+  const { logout, user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/admin/login');
+  };
 
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
@@ -95,7 +104,20 @@ const AdminDashboard: React.FC = () => {
           })}
         </nav>
 
-        <div className="absolute bottom-6 left-0 right-0 px-6">
+        <div className="absolute bottom-6 left-0 right-0 px-6 space-y-3">
+          {sidebarOpen && user && (
+            <div className="text-sm text-gray-400 px-3 mb-2">
+              Logged in as: <span className="text-white font-semibold">{user.username}</span>
+            </div>
+          )}
+          <button
+            onClick={handleLogout}
+            data-testid="logout-btn"
+            className="w-full flex items-center justify-center space-x-2 py-3 bg-red-600 hover:bg-red-700 rounded-lg transition-colors text-white"
+          >
+            <LogOut className="w-5 h-5" />
+            {sidebarOpen && <span>Logout</span>}
+          </button>
           <Link
             to="/"
             data-testid="back-to-website-link"
