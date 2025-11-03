@@ -150,7 +150,7 @@ const UPIPay: React.FC = () => {
               <img
                 src={upiInfo.logo_url}
                 alt="Logo"
-                className="max-h-20 max-w-48 object-contain"
+                className="max-h-48 max-w-96 object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
@@ -180,7 +180,7 @@ const UPIPay: React.FC = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-center space-y-4"
           >
-            <p className="text-white text-base sm:text-lg md:text-xl opacity-90">
+            <p className="text-white text-sm sm:text-base md:text-lg opacity-90">
               Scan From any UPI app
             </p>
             <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
