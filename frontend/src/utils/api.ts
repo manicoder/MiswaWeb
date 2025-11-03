@@ -217,6 +217,36 @@ export interface UPIPaymentInfo {
 
 export const getUPIPaymentInfo = (): Promise<AxiosResponse<UPIPaymentInfo>> => api.get('/upi-payment-info');
 export const updateUPIPaymentInfo = (data: Partial<UPIPaymentInfo>): Promise<AxiosResponse<UPIPaymentInfo>> => api.put('/upi-payment-info', data);
+export const uploadUPILogo = (file: File): Promise<AxiosResponse<{ url: string; filename: string }>> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return api.post('/upi-payment-info/upload-logo', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }).then(response => {
+    // Convert relative URL to absolute URL
+    if (response.data.url && response.data.url.startsWith('/')) {
+      response.data.url = `${BACKEND_URL}${response.data.url}`;
+    }
+    return response;
+  });
+};
+export const uploadUPIQRCode = (file: File): Promise<AxiosResponse<{ url: string; filename: string }>> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return api.post('/upi-payment-info/upload-qr-code', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }).then(response => {
+    // Convert relative URL to absolute URL
+    if (response.data.url && response.data.url.startsWith('/')) {
+      response.data.url = `${BACKEND_URL}${response.data.url}`;
+    }
+    return response;
+  });
+};
 
 // Social Media Info
 export interface SocialMediaLink {

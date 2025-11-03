@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Form
 from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -22,6 +23,10 @@ load_dotenv(ROOT_DIR / '.env')
 # Create uploads directory for CV files
 UPLOADS_DIR = ROOT_DIR / "uploads" / "cv"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Create uploads directory for UPI payment images (logo and QR code)
+UPI_UPLOADS_DIR = ROOT_DIR / "uploads" / "upi"
+UPI_UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -691,6 +696,66 @@ async def get_upi_payment_info():
         info['updated_at'] = datetime.fromisoformat(info['updated_at'])
     return UPIPaymentInfo(**info)
 
+@api_router.post("/upi-payment-info/upload-logo")
+async def upload_upi_logo(file: UploadFile = File(...)):
+    """Upload logo file for UPI payment info"""
+    # Validate file extension
+    file_ext = Path(file.filename).suffix.lower()
+    allowed_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg']
+    
+    if file_ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type. Allowed types: {', '.join(allowed_extensions)}"
+        )
+    
+    # Generate unique filename
+    file_id = str(uuid.uuid4())
+    filename = f"logo_{file_id}{file_ext}"
+    file_path = UPI_UPLOADS_DIR / filename
+    
+    # Save file
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    logger.info(f"UPI logo file saved: {filename}")
+    
+    # Return the URL path (relative to backend base URL)
+    # The frontend will construct the full URL using its BACKEND_URL
+    file_url = f"/uploads/upi/{filename}"
+    
+    return {"url": file_url, "filename": filename}
+
+@api_router.post("/upi-payment-info/upload-qr-code")
+async def upload_upi_qr_code(file: UploadFile = File(...)):
+    """Upload QR code file for UPI payment info"""
+    # Validate file extension
+    file_ext = Path(file.filename).suffix.lower()
+    allowed_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg']
+    
+    if file_ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type. Allowed types: {', '.join(allowed_extensions)}"
+        )
+    
+    # Generate unique filename
+    file_id = str(uuid.uuid4())
+    filename = f"qr_{file_id}{file_ext}"
+    file_path = UPI_UPLOADS_DIR / filename
+    
+    # Save file
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    logger.info(f"UPI QR code file saved: {filename}")
+    
+    # Return the URL path (relative to backend base URL)
+    # The frontend will construct the full URL using its BACKEND_URL
+    file_url = f"/uploads/upi/{filename}"
+    
+    return {"url": file_url, "filename": filename}
+
 @api_router.put("/upi-payment-info", response_model=UPIPaymentInfo)
 async def update_upi_payment_info(input: UPIPaymentInfoUpdate):
     update_data = {k: v for k, v in input.model_dump().items() if v is not None}
@@ -857,6 +922,11 @@ async def initialize_data():
         logger.info("Initialized default link pages data")
 
 app.include_router(api_router)
+
+# Serve uploaded files statically
+uploads_dir = ROOT_DIR / "uploads"
+if uploads_dir.exists():
+    app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
 
 # CORS configuration - supports comma-separated origins
 cors_origins_env = os.environ.get('CORS_ORIGINS', '*')

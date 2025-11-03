@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard } from 'lucide-react';
+import { CreditCard, Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { getUPIPaymentInfo, updateUPIPaymentInfo, UPIPaymentInfo } from '../../utils/api';
+import { getUPIPaymentInfo, updateUPIPaymentInfo, uploadUPILogo, uploadUPIQRCode, UPIPaymentInfo } from '../../utils/api';
 import { toast } from 'sonner';
 
 const UPIPaymentManagement: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
+  const [uploadingLogo, setUploadingLogo] = useState<boolean>(false);
+  const [uploadingQR, setUploadingQR] = useState<boolean>(false);
   const [formData, setFormData] = useState<UPIPaymentInfo>({
     company_name: '',
     brand_name: '',
@@ -30,6 +32,70 @@ const UPIPaymentManagement: React.FC = () => {
       toast.error('Failed to fetch UPI payment info');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid file type. Please upload PNG, JPG, GIF, WEBP, or SVG.');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size too large. Maximum size is 5MB.');
+      return;
+    }
+
+    setUploadingLogo(true);
+    try {
+      const response = await uploadUPILogo(file);
+      setFormData({ ...formData, logo_url: response.data.url });
+      toast.success('Logo uploaded successfully');
+    } catch (error) {
+      toast.error('Failed to upload logo');
+      console.error('Upload error:', error);
+    } finally {
+      setUploadingLogo(false);
+      // Reset input
+      e.target.value = '';
+    }
+  };
+
+  const handleQRCodeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid file type. Please upload PNG, JPG, GIF, WEBP, or SVG.');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size too large. Maximum size is 5MB.');
+      return;
+    }
+
+    setUploadingQR(true);
+    try {
+      const response = await uploadUPIQRCode(file);
+      setFormData({ ...formData, qr_code_url: response.data.url });
+      toast.success('QR code uploaded successfully');
+    } catch (error) {
+      toast.error('Failed to upload QR code');
+      console.error('Upload error:', error);
+    } finally {
+      setUploadingQR(false);
+      // Reset input
+      e.target.value = '';
     }
   };
 
@@ -126,79 +192,106 @@ const UPIPaymentManagement: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="logo_url">Logo URL</Label>
-                <Input
-                  id="logo_url"
-                  type="url"
-                  value={formData.logo_url || ''}
-                  onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-                  placeholder="https://example.com/logo.png"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Upload your logo image to a hosting service and paste the URL here
-                </p>
-                {formData.logo_url && (
-                  <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
-                    <p className="text-sm font-semibold mb-2">Logo Preview:</p>
-                    <div className="flex items-center justify-center p-4 bg-white rounded-lg border-2 border-dashed border-gray-300">
-                      <img
-                        src={formData.logo_url}
-                        alt="Logo"
-                        className="max-w-[200px] max-h-[100px] object-contain"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          if (!target.nextElementSibling) {
-                            const errorDiv = document.createElement('div');
-                            errorDiv.className = 'text-sm text-red-500';
-                            errorDiv.textContent = 'Failed to load image. Please check the URL.';
-                            target.parentElement?.appendChild(errorDiv);
-                          }
-                        }}
-                      />
+                <Label htmlFor="logo_file">Logo</Label>
+                <div className="mt-2">
+                  <label
+                    htmlFor="logo_file"
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      {uploadingLogo ? (
+                        <Loader2 className="w-8 h-8 mb-2 text-gray-500 animate-spin" />
+                      ) : formData.logo_url ? (
+                        <div className="relative">
+                          <img
+                            src={formData.logo_url}
+                            alt="Logo preview"
+                            className="max-w-full max-h-24 object-contain rounded"
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFormData({ ...formData, logo_url: '' });
+                            }}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 mb-2 text-gray-500" />
+                          <p className="mb-2 text-sm text-gray-500">
+                            <span className="font-semibold">Click to upload</span> or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500">PNG, JPG, GIF, WEBP or SVG (MAX. 5MB)</p>
+                        </>
+                      )}
                     </div>
-                  </div>
-                )}
+                    <input
+                      id="logo_file"
+                      type="file"
+                      className="hidden"
+                      accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml"
+                      onChange={handleLogoUpload}
+                      disabled={uploadingLogo}
+                    />
+                  </label>
+                </div>
               </div>
 
               <div>
-                <Label htmlFor="qr_code_url">QR Code Image URL *</Label>
-                <Input
-                  id="qr_code_url"
-                  type="url"
-                  required
-                  value={formData.qr_code_url}
-                  onChange={(e) => setFormData({ ...formData, qr_code_url: e.target.value })}
-                  placeholder="https://example.com/qr-code.png"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Upload your UPI QR code image to a hosting service and paste the URL here
-                </p>
-              </div>
-            </div>
-
-            {formData.qr_code_url && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
-                <p className="text-sm font-semibold mb-2">QR Code Preview:</p>
-                <div className="flex items-center justify-center p-4 bg-white rounded-lg border-2 border-dashed border-gray-300">
-                  <img
-                    src={formData.qr_code_url}
-                    alt="UPI QR Code"
-                    className="max-w-[200px] max-h-[200px] object-contain"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      if (!target.nextElementSibling) {
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = 'text-sm text-red-500';
-                        errorDiv.textContent = 'Failed to load image. Please check the URL.';
-                        target.parentElement?.appendChild(errorDiv);
-                      }
-                    }}
-                  />
+                <Label htmlFor="qr_code_file">QR Code Image *</Label>
+                <div className="mt-2">
+                  <label
+                    htmlFor="qr_code_file"
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      {uploadingQR ? (
+                        <Loader2 className="w-8 h-8 mb-2 text-gray-500 animate-spin" />
+                      ) : formData.qr_code_url ? (
+                        <div className="relative">
+                          <img
+                            src={formData.qr_code_url}
+                            alt="QR Code preview"
+                            className="max-w-full max-h-24 object-contain rounded"
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFormData({ ...formData, qr_code_url: '' });
+                            }}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 mb-2 text-gray-500" />
+                          <p className="mb-2 text-sm text-gray-500">
+                            <span className="font-semibold">Click to upload</span> or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500">PNG, JPG, GIF, WEBP or SVG (MAX. 5MB)</p>
+                        </>
+                      )}
+                    </div>
+                    <input
+                      id="qr_code_file"
+                      type="file"
+                      className="hidden"
+                      accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml"
+                      onChange={handleQRCodeUpload}
+                      disabled={uploadingQR}
+                      required={!formData.qr_code_url}
+                    />
+                  </label>
                 </div>
               </div>
-            )}
+            </div>
 
             <div className="flex justify-end space-x-4 pt-4 border-t">
               <Button
