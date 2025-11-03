@@ -186,19 +186,19 @@ const UPIPay: React.FC = () => {
             <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
               <div className="flex items-center gap-2">
                 <PhonePeIcon />
-                <span className="text-white text-sm sm:text-base">PhonePe</span>
+               {/* <span className="text-white text-sm sm:text-base">PhonePe</span>*/}
               </div>
               <div className="flex items-center gap-2">
                 <PaytmIcon />
-                <span className="text-white text-sm sm:text-base">Paytm</span>
+                {/* <span className="text-white text-sm sm:text-base">Paytm</span>*/}
               </div>
               <div className="flex items-center gap-2">
                 <BHIMIcon />
-                <span className="text-white text-sm sm:text-base">BHIM</span>
+               {/*  <span className="text-white text-sm sm:text-base">BHIM</span>*/}
               </div>
               <div className="flex items-center gap-2">
                 <GPayIcon />
-                <span className="text-white text-sm sm:text-base">G Pay</span>
+              {/*   <span className="text-white text-sm sm:text-base">G Pay</span>*/}
               </div>
             </div>
           </motion.div>
