@@ -150,7 +150,7 @@ const UPIPay: React.FC = () => {
               <img
                 src={upiInfo.logo_url}
                 alt="Logo"
-                className="max-h-48 max-w-96 object-contain"
+                className="max-h-48 max-w-48 object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
