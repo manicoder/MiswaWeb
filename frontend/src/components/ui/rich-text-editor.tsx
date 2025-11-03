@@ -112,7 +112,8 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, RichTextEditorProps>(
               quillRef.current.setSelection(selection);
             } catch {
               // If selection restoration fails, place cursor at end
-              quillRef.current.setSelection(quillRef.current.getLength());
+              const length = quillRef.current.getLength();
+              quillRef.current.setSelection({ index: length, length: 0 });
             }
           }
         }
