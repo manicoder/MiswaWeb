@@ -221,7 +221,7 @@ const UPIPay: React.FC = () => {
                 <img
                   src={upiInfo.qr_code_url}
                   alt="UPI QR Code"
-                  className="w-full h-full object-contain rounded-2xl"
+                  className="w-full h-full object-contain"
                   style={{ aspectRatio: '1' }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;

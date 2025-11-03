@@ -18,7 +18,7 @@ import io
 import csv
 import shutil
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -49,8 +49,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-change-this-in-produc
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Password hashing - using bcrypt directly
 
 # HTTP Bearer for token authentication
 security = HTTPBearer()
@@ -311,10 +310,24 @@ class Token(BaseModel):
 # ==================== AUTHENTICATION UTILITIES ====================
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    """Verify a password against a bcrypt hash"""
+    if isinstance(hashed_password, str):
+        hashed_password = hashed_password.encode('utf-8')
+    if isinstance(plain_password, str):
+        plain_password = plain_password.encode('utf-8')
+    try:
+        return bcrypt.checkpw(plain_password, hashed_password)
+    except Exception as e:
+        logger.error(f"Error verifying password: {e}")
+        return False
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    """Hash a password using bcrypt"""
+    if isinstance(password, str):
+        password = password.encode('utf-8')
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password, salt)
+    return hashed.decode('utf-8')
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
