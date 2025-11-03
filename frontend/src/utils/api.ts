@@ -211,6 +211,7 @@ export interface UPIPaymentInfo {
   gst_number: string;
   upi_id: string;
   qr_code_url: string;
+  logo_url?: string;
   updated_at?: string;
 }
 

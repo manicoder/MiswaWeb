@@ -15,6 +15,7 @@ const UPIPaymentManagement: React.FC = () => {
     gst_number: '',
     upi_id: '',
     qr_code_url: '',
+    logo_url: '',
   });
 
   useEffect(() => {
@@ -123,42 +124,81 @@ const UPIPaymentManagement: React.FC = () => {
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="qr_code_url">QR Code Image URL *</Label>
-              <Input
-                id="qr_code_url"
-                type="url"
-                required
-                value={formData.qr_code_url}
-                onChange={(e) => setFormData({ ...formData, qr_code_url: e.target.value })}
-                placeholder="https://example.com/qr-code.png"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Upload your UPI QR code image to a hosting service and paste the URL here
-              </p>
-              {formData.qr_code_url && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
-                  <p className="text-sm font-semibold mb-2">QR Code Preview:</p>
-                  <div className="flex items-center justify-center p-4 bg-white rounded-lg border-2 border-dashed border-gray-300">
-                    <img
-                      src={formData.qr_code_url}
-                      alt="UPI QR Code"
-                      className="max-w-[200px] max-h-[200px] object-contain"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        if (!target.nextElementSibling) {
-                          const errorDiv = document.createElement('div');
-                          errorDiv.className = 'text-sm text-red-500';
-                          errorDiv.textContent = 'Failed to load image. Please check the URL.';
-                          target.parentElement?.appendChild(errorDiv);
-                        }
-                      }}
-                    />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="logo_url">Logo URL</Label>
+                <Input
+                  id="logo_url"
+                  type="url"
+                  value={formData.logo_url || ''}
+                  onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
+                  placeholder="https://example.com/logo.png"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Upload your logo image to a hosting service and paste the URL here
+                </p>
+                {formData.logo_url && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+                    <p className="text-sm font-semibold mb-2">Logo Preview:</p>
+                    <div className="flex items-center justify-center p-4 bg-white rounded-lg border-2 border-dashed border-gray-300">
+                      <img
+                        src={formData.logo_url}
+                        alt="Logo"
+                        className="max-w-[200px] max-h-[100px] object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          if (!target.nextElementSibling) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'text-sm text-red-500';
+                            errorDiv.textContent = 'Failed to load image. Please check the URL.';
+                            target.parentElement?.appendChild(errorDiv);
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="qr_code_url">QR Code Image URL *</Label>
+                <Input
+                  id="qr_code_url"
+                  type="url"
+                  required
+                  value={formData.qr_code_url}
+                  onChange={(e) => setFormData({ ...formData, qr_code_url: e.target.value })}
+                  placeholder="https://example.com/qr-code.png"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Upload your UPI QR code image to a hosting service and paste the URL here
+                </p>
+              </div>
             </div>
+
+            {formData.qr_code_url && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
+                <p className="text-sm font-semibold mb-2">QR Code Preview:</p>
+                <div className="flex items-center justify-center p-4 bg-white rounded-lg border-2 border-dashed border-gray-300">
+                  <img
+                    src={formData.qr_code_url}
+                    alt="UPI QR Code"
+                    className="max-w-[200px] max-h-[200px] object-contain"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      if (!target.nextElementSibling) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'text-sm text-red-500';
+                        errorDiv.textContent = 'Failed to load image. Please check the URL.';
+                        target.parentElement?.appendChild(errorDiv);
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="flex justify-end space-x-4 pt-4 border-t">
               <Button

@@ -247,6 +247,7 @@ class UPIPaymentInfo(BaseModel):
     gst_number: str
     upi_id: str
     qr_code_url: str
+    logo_url: Optional[str] = None
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class UPIPaymentInfoUpdate(BaseModel):
@@ -255,6 +256,7 @@ class UPIPaymentInfoUpdate(BaseModel):
     gst_number: Optional[str] = None
     upi_id: Optional[str] = None
     qr_code_url: Optional[str] = None
+    logo_url: Optional[str] = None
 
 class SocialMediaLink(BaseModel):
     icon: str  # Name of lucide-react icon (e.g., "Facebook", "Instagram", "Twitter")
