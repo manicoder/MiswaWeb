@@ -160,7 +160,7 @@ const UPIPay: React.FC = () => {
           )}
 
           {/* Brand Name Section */}
-          {upiInfo.brand_name && (
+            {/*  {upiInfo.brand_name && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -171,7 +171,7 @@ const UPIPay: React.FC = () => {
                 {upiInfo.brand_name}
               </h1>
             </motion.div>
-          )}
+          )} */}
 
           {/* Scan From UPI Apps Section */}
           <motion.div
