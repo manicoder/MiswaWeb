@@ -142,12 +142,12 @@ const UPIPay: React.FC = () => {
               initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="pt-4 pb-1 flex justify-center"
+              className="pt-5 pb-2 flex justify-center"
             >
               <img
                 src={upiInfo.logo_url}
                 alt="Logo"
-                className="max-h-20 sm:max-h-28 max-w-28 object-contain"
+                className="max-h-16 sm:max-h-24 max-w-24 sm:max-w-28 object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
@@ -158,7 +158,7 @@ const UPIPay: React.FC = () => {
         </div>
 
         {/* Center: perfectly centered within the viewport (nudged slightly upward) */}
-        <div className="absolute inset-0 px-4 pt-20 pb-14 flex items-center justify-center -translate-y-2 sm:-translate-y-3 md:-translate-y-4">
+        <div className="absolute inset-0 px-4 pt-24 pb-16 flex items-center justify-center -translate-y-1 sm:-translate-y-2 md:-translate-y-3">
           <div className="w-full max-w-md mx-auto flex flex-col items-center justify-center">
             <div className="w-full flex flex-col items-center gap-3 sm:gap-4 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4 sm:p-6">
 
@@ -204,8 +204,8 @@ const UPIPay: React.FC = () => {
                 className="relative bg-white rounded-2xl shadow-xl p-3 sm:p-4"
                 style={{ 
                   // Keep square; tighter mobile budget to avoid scroll, cap size on desktop
-                  width: 'min(82vw, calc(100svh - 230px), 360px)',
-                  height: 'min(82vw, calc(100svh - 230px), 360px)',
+                  width: 'min(82vw, calc(100svh - 280px), 360px)',
+                  height: 'min(82vw, calc(100svh - 280px), 360px)',
                 }}
               >
                 <img

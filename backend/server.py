@@ -313,6 +313,10 @@ class Token(BaseModel):
 
 # ==================== AUTHENTICATION UTILITIES ====================
 
+class AdminChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against a bcrypt hash"""
     if isinstance(hashed_password, str):
@@ -394,6 +398,28 @@ async def get_current_admin_info(current_admin: dict = Depends(get_current_admin
         "username": current_admin.get("username"),
         "id": current_admin.get("id")
     }
+
+@api_router.post("/admin/change-password")
+async def change_admin_password(payload: AdminChangePassword, current_admin: dict = Depends(get_current_admin)):
+    # Basic new password policy
+    if len(payload.new_password) < 8:
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters")
+    # Re-fetch admin to ensure latest
+    admin = await db.admin_users.find_one({"username": current_admin.get("username")}, {"_id": 0})
+    if not admin:
+        raise HTTPException(status_code=404, detail="Admin not found")
+    # Verify current password
+    if not verify_password(payload.current_password, admin.get("password_hash", "")):
+        raise HTTPException(status_code=401, detail="Current password is incorrect")
+    # Update with new hash
+    new_hash = get_password_hash(payload.new_password)
+    result = await db.admin_users.update_one(
+        {"username": current_admin.get("username")},
+        {"$set": {"password_hash": new_hash}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Admin not found")
+    return {"message": "Password updated successfully"}
 
 # ==================== BRANDS ====================
 
@@ -1074,6 +1100,14 @@ cors_origins_env = os.environ.get('CORS_ORIGINS', '*')
 if cors_origins_env != '*':
     # Split by comma and strip whitespace from each origin
     cors_origins = [origin.strip() for origin in cors_origins_env.split(',') if origin.strip()]
+    # Developer convenience: if localhost origins are present, also allow :3002 for CRA/CRACO alt port
+    try:
+        localhost_origins = {o for o in cors_origins if o.startswith('http://localhost:')}
+        if localhost_origins:
+            if 'http://localhost:3002' not in cors_origins:
+                cors_origins.append('http://localhost:3002')
+    except Exception as e:
+        logger.warning(f"Could not augment CORS origins for localhost ports: {e}")
     use_credentials = True
     logger.info(f"CORS configured for origins: {cors_origins}")
 else:
