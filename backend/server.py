@@ -23,16 +23,23 @@ import bcrypt
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Create general assets directory for arbitrary uploaded files (images, docs, etc.)
-ASSETS_DIR = ROOT_DIR / "assets"
+# Base data directory (configurable for persistent volumes in production)
+# On Railway, set DATA_DIR=/data and mount a Volume at /data for persistence
+DATA_DIR = Path(os.environ.get("DATA_DIR", str(ROOT_DIR)))
+
+# Allow explicit overrides as well
+ASSETS_DIR = Path(os.environ.get("ASSETS_DIR", str(DATA_DIR / "assets")))
+UPLOADS_BASE = Path(os.environ.get("UPLOADS_DIR", str(DATA_DIR / "uploads")))
+
+# Ensure directories exist
 ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Create uploads directory for CV files
-UPLOADS_DIR = ROOT_DIR / "uploads" / "cv"
+UPLOADS_DIR = UPLOADS_BASE / "cv"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Create uploads directory for UPI payment images (logo and QR code)
-UPI_UPLOADS_DIR = ROOT_DIR / "uploads" / "upi"
+UPI_UPLOADS_DIR = UPLOADS_BASE / "upi"
 UPI_UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 logging.basicConfig(
@@ -1085,12 +1092,11 @@ async def initialize_data():
         logger.warning("⚠️  Change these credentials immediately in production!")
 
 # Include API routes (ensure this line comes AFTER all @api_router.* route definitions)
-# Serve uploaded files statically
-uploads_dir = ROOT_DIR / "uploads"
-if uploads_dir.exists():
-    app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
+# Serve uploaded files statically from configured uploads base
+if UPLOADS_BASE.exists():
+    app.mount("/uploads", StaticFiles(directory=str(UPLOADS_BASE)), name="uploads")
 
-# Serve general assets statically
+# Serve general assets statically from configured assets dir
 if ASSETS_DIR.exists():
     app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
 
