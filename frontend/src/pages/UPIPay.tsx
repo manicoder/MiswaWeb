@@ -204,8 +204,8 @@ const UPIPay: React.FC = () => {
                 className="relative bg-white rounded-2xl shadow-xl p-3 sm:p-4"
                 style={{ 
                   // Keep square; tighter mobile budget to avoid scroll, cap size on desktop
-                  width: 'min(82vw, calc(100svh - 280px), 360px)',
-                  height: 'min(82vw, calc(100svh - 280px), 360px)',
+                  width: 'min(72vw, calc(100svh - 320px), 320px)',
+                  height: 'min(72vw, calc(100svh - 320px), 320px)',
                 }}
               >
                 <img
@@ -223,8 +223,8 @@ const UPIPay: React.FC = () => {
               <div 
                 className="bg-gray-800 border-2 border-dashed border-gray-600 rounded-2xl flex items-center justify-center"
                 style={{ 
-                  width: 'min(82vw, calc(100svh - 230px), 360px)',
-                  height: 'min(82vw, calc(100svh - 230px), 360px)'
+                  width: 'min(72vw, calc(100svh - 320px), 320px)',
+                  height: 'min(72vw, calc(100svh - 320px), 320px)'
                 }}
               >
                 <div className="text-center text-gray-400 px-4">
