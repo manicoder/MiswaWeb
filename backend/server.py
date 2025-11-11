@@ -23,6 +23,10 @@ import bcrypt
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+# Create general assets directory for arbitrary uploaded files (images, docs, etc.)
+ASSETS_DIR = ROOT_DIR / "assets"
+ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+
 # Create uploads directory for CV files
 UPLOADS_DIR = ROOT_DIR / "uploads" / "cv"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
@@ -1061,6 +1065,10 @@ uploads_dir = ROOT_DIR / "uploads"
 if uploads_dir.exists():
     app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
 
+# Serve general assets statically
+if ASSETS_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
+
 # CORS configuration - supports comma-separated origins
 cors_origins_env = os.environ.get('CORS_ORIGINS', '*')
 if cors_origins_env != '*':
@@ -1093,3 +1101,39 @@ app.add_middleware(
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+# ==================== GENERIC ASSET UPLOAD ====================
+@api_router.post("/assets/upload")
+async def upload_asset(
+    file: UploadFile = File(...),
+    current_admin: dict = Depends(get_current_admin)
+):
+    """
+    Upload a general asset (image/pdf/etc.) to the backend assets folder.
+    Returns a URL path that the frontend can load directly.
+    """
+    file_ext = Path(file.filename).suffix.lower()
+    # Allow common web-safe asset types
+    allowed_extensions = [
+        '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg',
+        '.pdf', '.doc', '.docx', '.txt'
+    ]
+    if file_ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type. Allowed types: {', '.join(allowed_extensions)}"
+        )
+    # Generate unique filename
+    file_id = str(uuid.uuid4())
+    safe_prefix = "asset_"
+    filename = f"{safe_prefix}{file_id}{file_ext}"
+    file_path = ASSETS_DIR / filename
+
+    # Save file
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    logger.info(f"Asset saved: {filename}")
+    # Return relative URL; frontend can prefix with BACKEND_URL
+    file_url = f"/assets/{filename}"
+    return {"url": file_url, "filename": filename}

@@ -53,7 +53,7 @@ const GPayIcon = () => (
 );
 
 const UPIIcon = () => (
-  <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style={{ width: '64px', height: '64px' }}>
+  <svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style={{ width: '28px', height: '28px' }}>
     <path fill="#707174" d="M19.738 30.04a.865.865 0 0 1 .408 1.182c-.242.787-.442 1.587-.66 2.381a1.45 1.45 0 0 1-1.698 1.307q-5.013.001-10.027.008c-.265 0-.36-.024-.276-.32q1.289-4.576 2.554-9.157a.36.36 0 0 1 .41-.317c3.443.009 6.885.006 10.327.011a.693.693 0 0 1 .778.957 89.037 89.037 0 0 1-.839 3.041 1.458 1.458 0 0 1-.977.907zm-4.614-2.99c-1.067 0-2.134.008-3.201-.005a.409.409 0 0 0-.488.389 11.042 11.042 0 0 1-.348 1.23c-.089.275-.075.417.28.416 2.148-.012 4.296-.002 6.444-.01a1.276 1.276 0 0 0 1.272-1.05.694.694 0 0 0-.759-.969c-1.066-.003-2.133 0-3.2-.001zm-1.622 5.962h3.154a1.299 1.299 0 0 0 1.178-.64c.434-.704.14-1.388-.604-1.391-2.145-.009-4.29 0-6.435-.008a.372.372 0 0 0-.428.31c-.113.44-.214.885-.366 1.312-.135.382.022.425.348.42 1.05-.013 2.102-.004 3.153-.003zm34.421-2.601c-.328.29-.656.574-.975.868q-1.836 1.69-3.663 3.387c-.203.19-.306.221-.466-.058-.9-1.58-1.819-3.15-2.733-4.723a.929.929 0 0 0-.1-.115 1.17 1.17 0 0 0-.246.61q-.575 2.053-1.121 4.113a.433.433 0 0 1-.516.41c-.41-.031-.825-.01-1.237-.005-.19.003-.295-.025-.229-.265q1.287-4.642 2.562-9.288a.412.412 0 0 1 .073-.092 1.62 1.62 0 0 1 .393.534q1.735 2.885 3.461 5.776c.259.432.252.423.64.092q3.129-2.67 6.265-5.331l1.295-1.104a.956.956 0 0 1-.102.604c-.792 2.906-1.598 5.809-2.386 8.716a.393.393 0 0 1-.464.363 11.05 11.05 0 0 0-1.194-.002c-.341.02-.368-.106-.285-.4.362-1.27.703-2.547 1.051-3.82a.235.235 0 0 0-.023-.27zm-20.056-1.344c1.124 0 2.248-.021 3.37.011a.534.534 0 0 0 .607-.494c.263-1.002.545-2 .792-3.007a.477.477 0 0 1 .581-.447 8.044 8.044 0 0 0 1.109.001c.299-.015.367.072.284.368-.424 1.505-.83 3.015-1.242 4.523-.396 1.452-.801 2.902-1.182 4.358a.56.56 0 0 1-.693.531 6.133 6.133 0 0 0-1.065-.004c-.286.013-.333-.081-.255-.35.305-1.05.583-2.109.886-3.16.088-.308.048-.432-.315-.43q-3.435.02-6.87.002a.47.47 0 0 0-.542.438c-.265 1.06-.58 2.11-.856 3.167a.372.372 0 0 1-.445.333 10.132 10.132 0 0 0-1.194 0c-.415.03-.347-.186-.276-.444q.675-2.446 1.341-4.893c.375-1.37.752-2.74 1.119-4.113a.35.35 0 0 1 .404-.326c.425.02.853.018 1.28 0 .296-.013.328.097.255.355-.304 1.08-.582 2.167-.894 3.245-.083.287-.012.343.26.34 1.18-.009 2.361-.003 3.541-.004zm9.104-3.906h.426c.566 0 .57.001.425.524q-1.187 4.309-2.38 8.616c-.178.643-.185.641-.846.642-.312 0-.625-.01-.937.003-.281.012-.337-.081-.26-.354q1.132-4.04 2.242-8.086a6.828 6.828 0 0 0 .228-.862.487.487 0 0 1 .634-.486 3.54 3.54 0 0 0 .468.003z"></path>
     <path fill="#f07a25" d="m52.518 32.906-2.092 1.945-.068-.054c.24-.887.476-1.775.72-2.66q.91-3.304 1.825-6.606a.302.302 0 0 1 .15-.284c.146-.025.144.143.194.235.31.574.546 1.186.908 1.731a24.21 24.21 0 0 0 1.178 2.452.488.488 0 0 1-.144.685c-.901.84-1.783 1.702-2.671 2.556Z"></path>
     <path fill="#0c8d48" d="M52.518 32.906c.888-.854 1.77-1.716 2.67-2.556a.488.488 0 0 0 .145-.685 24.21 24.21 0 0 1-1.178-2.452l.623-2.092c.257.5.472.907.68 1.32.524 1.04 1.032 2.087 1.572 3.118a.605.605 0 0 1-.17.861c-1.482 1.37-2.931 2.775-4.393 4.166a.776.776 0 0 1-.364.263 13.182 13.182 0 0 0 .415-1.943Z"></path>
@@ -125,32 +125,29 @@ const UPIPay: React.FC = () => {
 
   return (
     <div 
-      className="fixed inset-0 overflow-y-auto"
+      className="fixed inset-0 overflow-hidden md:overflow-y-auto"
       data-testid="upi-pay-page"
       style={{ 
-        minHeight: '100dvh', 
+        minHeight: '100svh', 
         width: '100vw',
         background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533483 75%, #1a1a2e 100%)'
       }}
     >
-      {/* Main Content */}
-      <div 
-        className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-8 sm:py-12"
-      >
-        <div className="w-full max-w-md space-y-8">
-          
-          {/* Logo Section */}
+      {/* Main Content - absolute header/footer, truly centered middle */}
+      <div className="relative w-full h-full">
+        {/* Header: Logo pinned to top */}
+        <div className="absolute top-0 left-0 right-0 px-4">
           {upiInfo.logo_url && (
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex justify-center"
+              transition={{ duration: 0.4 }}
+              className="pt-4 pb-1 flex justify-center"
             >
               <img
                 src={upiInfo.logo_url}
                 alt="Logo"
-                className="max-h-48 max-w-48 object-contain"
+                className="max-h-20 sm:max-h-28 max-w-28 object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
@@ -158,45 +155,37 @@ const UPIPay: React.FC = () => {
               />
             </motion.div>
           )}
+        </div>
 
-          {/* Brand Name Section */}
-            {/*  {upiInfo.brand_name && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-center"
-            >
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
-                {upiInfo.brand_name}
-              </h1>
-            </motion.div>
-          )} */}
+        {/* Center: perfectly centered within the viewport (nudged slightly upward) */}
+        <div className="absolute inset-0 px-4 pt-20 pb-14 flex items-center justify-center -translate-y-2 sm:-translate-y-3 md:-translate-y-4">
+          <div className="w-full max-w-md mx-auto flex flex-col items-center justify-center">
+            <div className="w-full flex flex-col items-center gap-3 sm:gap-4 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4 sm:p-6">
 
           {/* Scan From UPI Apps Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-center space-y-4"
+            className="text-center space-y-2"
           >
-            <p className="text-white text-sm sm:text-base md:text-sm opacity-90">
+            <p className="text-white text-xs sm:text-sm md:text-sm opacity-90">
               Scan From any UPI app
             </p>
-            <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap">
+              <div className="flex items-center gap-1.5">
                 <PhonePeIcon />
                {/* <span className="text-white text-sm sm:text-base">PhonePe</span>*/}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <PaytmIcon />
                 {/* <span className="text-white text-sm sm:text-base">Paytm</span>*/}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <BHIMIcon />
                {/*  <span className="text-white text-sm sm:text-base">BHIM</span>*/}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <GPayIcon />
               {/*   <span className="text-white text-sm sm:text-base">G Pay</span>*/}
               </div>
@@ -205,17 +194,18 @@ const UPIPay: React.FC = () => {
 
           {/* QR Code Section */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
             className="flex justify-center"
           >
             {upiInfo.qr_code_url ? (
               <div 
-                className="relative bg-white rounded-3xl shadow-2xl p-3 sm:p-4 md:p-5"
+                className="relative bg-white rounded-2xl shadow-xl p-3 sm:p-4"
                 style={{ 
-                  width: 'min(70vw, 300px)',
-                  height: 'min(70vw, 300px)',
+                  // Keep square; tighter mobile budget to avoid scroll, cap size on desktop
+                  width: 'min(82vw, calc(100svh - 230px), 360px)',
+                  height: 'min(82vw, calc(100svh - 230px), 360px)',
                 }}
               >
                 <img
@@ -231,18 +221,32 @@ const UPIPay: React.FC = () => {
               </div>
             ) : (
               <div 
-                className="bg-gray-800 border-4 border-dashed border-gray-600 rounded-3xl flex items-center justify-center"
+                className="bg-gray-800 border-2 border-dashed border-gray-600 rounded-2xl flex items-center justify-center"
                 style={{ 
-                  width: 'min(70vw, 300px)',
-                  height: 'min(70vw, 300px)'
+                  width: 'min(82vw, calc(100svh - 230px), 360px)',
+                  height: 'min(82vw, calc(100svh - 230px), 360px)'
                 }}
               >
                 <div className="text-center text-gray-400 px-4">
-                  <p className="text-base sm:text-lg md:text-xl">QR Code not available</p>
+                  <p className="text-sm sm:text-base md:text-lg">QR Code not available</p>
                 </div>
               </div>
             )}
           </motion.div>
+              {/* Company Name below QR */}
+              {upiInfo.company_name && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.3 }}
+                  className="w-full text-center"
+                >
+                  <p className="text-white text-sm sm:text-base font-semibold truncate">
+                    {upiInfo.company_name}
+                  </p>
+                </motion.div>
+              )}
+            </div>
 
           {/* UPI ID Section */}
           {upiInfo.upi_id && (
@@ -253,7 +257,7 @@ const UPIPay: React.FC = () => {
               className="text-center"
             >
               <div className="inline-flex items-center gap-2">
-                <p className="text-white text-sm sm:text-base md:text-lg font-bold font-mono">
+                <p className="text-white text-sm sm:text-base font-bold font-mono">
                   {upiInfo.upi_id}
                 </p>
                 <button
@@ -261,27 +265,29 @@ const UPIPay: React.FC = () => {
                   className="p-1 hover:bg-gray-700/50 rounded-lg text-white transition-colors active:scale-95"
                   aria-label="Copy UPI ID"
                 >
-                  <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Copy className="w-4 h-4" />
                 </button>
               </div>
             </motion.div>
           )}
+          </div>
+        </div>
 
-          {/* Powered By Section */}
+        {/* Footer: Powered By pinned to bottom */}
+        <div className="absolute bottom-0 left-0 right-0 px-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="text-center space-y-2 pt-4"
+            className="w-full max-w-md mx-auto text-center space-y-0.5 pt-1 pb-3"
           >
-            <p className="text-gray-400 text-xs sm:text-sm">Powered BY</p>
-            <div className="flex items-center justify-center gap-3">
+            <p className="text-gray-400 text-xs">Powered BY</p>
+            <div className="flex items-center justify-center gap-1.5">
               <UPIIcon />
                  {/*  <span className="text-white text-lg sm:text-xl md:text-2xl font-bold">UPI</span> */}
             </div>
-            <p className="text-gray-400 text-xs sm:text-sm">Unified Payments Interface</p>
+            <p className="text-gray-400 text-xs">Unified Payments Interface</p>
           </motion.div>
-
         </div>
       </div>
     </div>
