@@ -248,6 +248,34 @@ export const uploadUPIQRCode = (file: File): Promise<AxiosResponse<{ url: string
   });
 };
 
+// General Assets
+export const uploadAsset = (file: File): Promise<AxiosResponse<{ url: string; filename: string }>> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return api.post('/assets/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }).then(response => {
+    if (response.data.url && response.data.url.startsWith('/')) {
+      response.data.url = `${BACKEND_URL}${response.data.url}`;
+    }
+    return response;
+  });
+};
+
+export interface UploadedFileItem {
+  category: 'assets' | 'uploads/upi' | 'uploads/cv';
+  filename: string;
+  url: string; // likely relative; convert to absolute when showing
+  size_bytes: number;
+  modified_at: string;
+}
+
+export const listUploadedFiles = (): Promise<AxiosResponse<UploadedFileItem[]>> => api.get('/files');
+export const deleteUploadedFile = (category: UploadedFileItem['category'], filename: string): Promise<AxiosResponse<{ success: boolean }>> =>
+  api.delete('/files', { data: { category, filename } });
+
 // Social Media Info
 export interface SocialMediaLink {
   icon: string;

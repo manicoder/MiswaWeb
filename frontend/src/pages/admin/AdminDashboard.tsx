@@ -37,6 +37,7 @@ import CompanyInfoManagement from './CompanyInfoManagement';
 import LinkPagesManagement from './LinkPagesManagement';
 import UPIPaymentManagement from './UPIPaymentManagement';
 import SocialMediaManagement from './SocialMediaManagement';
+import FilesManagement from './FilesManagement';
 
 const AdminDashboard: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
@@ -58,6 +59,7 @@ const AdminDashboard: React.FC = () => {
     { name: 'Link Pages', path: '/admin/link-pages', icon: LinkIcon },
     { name: 'UPI Payment', path: '/admin/upi-payment', icon: CreditCard },
     { name: 'Social Media', path: '/admin/social-media', icon: Share2 },
+    { name: 'Files', path: '/admin/files', icon: FileText },
     { name: 'Inquiries', path: '/admin/inquiries', icon: Mail },
     { name: 'Company Info', path: '/admin/company', icon: Info },
   ];
@@ -140,6 +142,7 @@ const AdminDashboard: React.FC = () => {
             <Route path="/link-pages" element={<LinkPagesManagement />} />
             <Route path="/upi-payment" element={<UPIPaymentManagement />} />
             <Route path="/social-media" element={<SocialMediaManagement />} />
+            <Route path="/files" element={<FilesManagement />} />
             <Route path="/inquiries" element={<InquiriesManagement />} />
             <Route path="/company" element={<CompanyInfoManagement />} />
           </Routes>

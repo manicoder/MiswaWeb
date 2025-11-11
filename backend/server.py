@@ -1084,8 +1084,7 @@ async def initialize_data():
         logger.warning("⚠️  Default admin credentials: username='admin', password='admin123'")
         logger.warning("⚠️  Change these credentials immediately in production!")
 
-app.include_router(api_router)
-
+# Include API routes (ensure this line comes AFTER all @api_router.* route definitions)
 # Serve uploaded files statically
 uploads_dir = ROOT_DIR / "uploads"
 if uploads_dir.exists():
@@ -1171,3 +1170,73 @@ async def upload_asset(
     # Return relative URL; frontend can prefix with BACKEND_URL
     file_url = f"/assets/{filename}"
     return {"url": file_url, "filename": filename}
+
+# ==================== FILES LIST/DELETE ====================
+class UploadedFileItem(BaseModel):
+    category: str  # assets | uploads/upi | uploads/cv
+    filename: str
+    url: str
+    size_bytes: int
+    modified_at: datetime
+
+def _scan_dir_for_files(base_path: Path, url_prefix: str, category: str) -> List[UploadedFileItem]:
+    items: List[UploadedFileItem] = []
+    if not base_path.exists():
+        return items
+    for entry in base_path.iterdir():
+        if entry.is_file():
+            try:
+                stat = entry.stat()
+                items.append(UploadedFileItem(
+                    category=category,
+                    filename=entry.name,
+                    url=f"{url_prefix}/{entry.name}",
+                    size_bytes=stat.st_size,
+                    modified_at=datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc),
+                ))
+            except Exception as e:
+                logger.error(f"Error reading file info for {entry}: {e}")
+                continue
+    return items
+
+@api_router.get("/files", response_model=List[UploadedFileItem])
+async def list_uploaded_files(current_admin: dict = Depends(get_current_admin)):
+    """List all uploaded files across assets and uploads directories."""
+    results: List[UploadedFileItem] = []
+    # assets
+    results.extend(_scan_dir_for_files(ASSETS_DIR, "/assets", "assets"))
+    # uploads/upi
+    results.extend(_scan_dir_for_files(UPI_UPLOADS_DIR, "/uploads/upi", "uploads/upi"))
+    # uploads/cv
+    results.extend(_scan_dir_for_files(UPLOADS_DIR, "/uploads/cv", "uploads/cv"))
+    # Sort by modified_at desc
+    results.sort(key=lambda x: x.modified_at, reverse=True)
+    return results
+
+class DeleteFileRequest(BaseModel):
+    category: str  # assets | uploads/upi | uploads/cv
+    filename: str
+
+@api_router.delete("/files")
+async def delete_uploaded_file(req: DeleteFileRequest, current_admin: dict = Depends(get_current_admin)):
+    """Delete a file by category and filename."""
+    category = req.category
+    filename = req.filename
+
+    if category not in {"assets", "uploads/upi", "uploads/cv"}:
+        raise HTTPException(status_code=400, detail="Invalid category")
+
+    base_dir = ASSETS_DIR if category == "assets" else (UPI_UPLOADS_DIR if category == "uploads/upi" else UPLOADS_DIR)
+    file_path = base_dir / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+    try:
+        file_path.unlink()
+        logger.info(f"Deleted file: {category}/{filename}")
+        return {"success": True}
+    except Exception as e:
+        logger.error(f"Failed deleting file {file_path}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete file")
+
+# Include API routes (ensure routes defined above are registered)
+app.include_router(api_router)
