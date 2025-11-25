@@ -17,6 +17,7 @@ export default defineConfig({
       'healthcheck.railway.app',
       'mltadmin.mylittletales.com',
       'miswainternational.com',
+      'mltweb-production.up.railway.app',
     ],
   },
   build: {
