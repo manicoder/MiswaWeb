@@ -32,6 +32,7 @@ COPY --from=publish /app/publish .
 # Set environment variables for Railway deployment
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+ 
 
 # Run the app
 ENTRYPOINT ["dotnet", "MltAdminApi.dll"]
