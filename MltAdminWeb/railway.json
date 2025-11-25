@@ -5,7 +5,7 @@
   },
   "deploy": {
     "startCommand": "yarn preview",
-    "healthcheckPath": "/mltadmin/",
+    "healthcheckPath": "/admin/",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10

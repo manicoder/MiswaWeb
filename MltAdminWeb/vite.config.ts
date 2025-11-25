@@ -1,10 +1,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-const basePath = process.env.NODE_ENV === 'production' ? '/mltadmin/' : '/';
-
 export default defineConfig({
-  base: basePath,
+  base: '/admin/',
   plugins: [react()],
   server: {
     host: '0.0.0.0',
@@ -17,7 +15,6 @@ export default defineConfig({
       'healthcheck.railway.app',
       'mltadmin.mylittletales.com',
       'miswainternational.com',
-      'mltweb-production.up.railway.app',
     ],
   },
   build: {

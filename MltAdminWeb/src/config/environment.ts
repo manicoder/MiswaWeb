@@ -77,7 +77,7 @@ export const getEnvironmentConfig = () => {
     frontendUrl: isDevelopment 
       ? 'http://localhost:5173' 
       : isMiswainternational
-        ? 'https://miswainternational.com/mltadmin'
+        ? 'https://miswainternational.com/admin'
         : 'https://mltadmin.mylittletales.com',
 
     // Feature flags
