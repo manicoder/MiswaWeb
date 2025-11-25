@@ -299,8 +299,11 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  access_token: string;
-  token_type: string;
+  access_token?: string;
+  token_type?: string;
+  requires_2fa?: boolean;
+  temp_token?: string;
+  message?: string;
 }
 
 export interface AdminUser {
@@ -311,6 +314,33 @@ export interface AdminUser {
 // Login function
 export const adminLogin = (data: LoginRequest): Promise<AxiosResponse<LoginResponse>> => 
   api.post('/admin/login', data);
+
+export interface TwoFAVerifyRequest {
+  code: string;
+  temp_token: string;
+}
+
+export interface TwoFAVerifyResponse {
+  access_token: string;
+  token_type: string;
+}
+
+export const verifyTwoFactor = (data: TwoFAVerifyRequest): Promise<AxiosResponse<TwoFAVerifyResponse>> =>
+  api.post('/admin/2fa/verify', data);
+
+export interface TwoFASetupInitResponse {
+  otpauth_url: string;
+  secret: string;
+}
+
+export const initiateTwoFactorSetup = (): Promise<AxiosResponse<TwoFASetupInitResponse>> =>
+  api.post('/admin/2fa/setup-initiate');
+
+export const enableTwoFactor = (code: string): Promise<AxiosResponse<{ message: string }>> =>
+  api.post('/admin/2fa/enable', { code });
+
+export const getTwoFactorStatus = (): Promise<AxiosResponse<{ is_2fa_enabled: boolean }>> =>
+  api.get('/admin/2fa/status');
 
 // Get current admin info
 export const getCurrentAdmin = (): Promise<AxiosResponse<AdminUser>> => 

@@ -1,0 +1,559 @@
+/* MLT Admin Custom Color Palette */
+:root {
+  /* Light Theme Colors */
+  --mlt-light-main-bg: #f6f6f9; /* Main content background */
+  --mlt-light-sidebar-bg: #ffffff; /* Sidebar background */
+  --mlt-light-header-bg: #ffffff; /* Header background */
+  --mlt-light-card-bg: #ffffff; /* Card background - same as sidebar */
+  --mlt-light-table-bg: #ffffff; /* Table background - same as sidebar */
+  --mlt-light-table-row-hover: #f8f9fa; /* Table row hover - subtle highlight */
+  --mlt-light-table-row-alt: #f8f9fa; /* Alternate table rows - very subtle difference */
+  --mlt-light-border: #e9ecef; /* Borders */
+  --mlt-light-border-light: #f1f3f5; /* Light borders */
+  --mlt-light-text-primary: #212529; /* Primary text */
+  --mlt-light-text-secondary: #6c757d; /* Secondary text */
+  --mlt-light-shadow: rgba(0, 0, 0, 0.05); /* Shadows */
+
+  /* Dark Theme Colors - Enhanced Professional Palette */
+  --mlt-dark-main-bg: #2a2d34; /* Main content background - balanced contrast */
+  --mlt-dark-sidebar-bg: #1b1d22; /* Sidebar background - refined dark */
+  --mlt-dark-header-bg: #1b1d22; /* Header background - matches sidebar */
+  --mlt-dark-card-bg: #25282e; /* Card background - floating effect */
+  --mlt-dark-table-bg: #1f2227; /* Table background - darker, closer to sidebar */
+  --mlt-dark-table-row-hover: #252931; /* Table row hover - subtle highlight */
+  --mlt-dark-table-row-alt: #21252a; /* Alternate table rows - minimal contrast */
+  --mlt-dark-border: #313539; /* Borders - darker, clearer definition */
+  --mlt-dark-border-light: #3a3e45; /* Light borders - darker subtle dividers */
+  --mlt-dark-text-primary: #e0e0e0; /* Primary text - excellent readability */
+  --mlt-dark-text-secondary: #b0b0b0; /* Secondary text - muted but clear */
+  --mlt-dark-shadow: rgba(0, 0, 0, 0.3); /* Shadows - enhanced depth */
+}
+
+/* Apply Light Theme Colors */
+[data-mantine-color-scheme='light'] {
+  --mlt-main-bg: var(--mlt-light-main-bg);
+  --mlt-sidebar-bg: var(--mlt-light-sidebar-bg);
+  --mlt-header-bg: var(--mlt-light-header-bg);
+  --mlt-card-bg: var(--mlt-light-card-bg);
+  --mlt-table-bg: var(--mlt-light-table-bg);
+  --mlt-table-row-hover: var(--mlt-light-table-row-hover);
+  --mlt-table-row-alt: var(--mlt-light-table-row-alt);
+  --mlt-border: var(--mlt-light-border);
+  --mlt-border-light: var(--mlt-light-border-light);
+  --mlt-text-primary: var(--mlt-light-text-primary);
+  --mlt-text-secondary: var(--mlt-light-text-secondary);
+  --mlt-shadow: var(--mlt-light-shadow);
+}
+
+/* Apply Dark Theme Colors */
+[data-mantine-color-scheme='dark'] {
+  --mlt-main-bg: var(--mlt-dark-main-bg);
+  --mlt-sidebar-bg: var(--mlt-dark-sidebar-bg);
+  --mlt-header-bg: var(--mlt-dark-header-bg);
+  --mlt-card-bg: var(--mlt-dark-card-bg);
+  --mlt-table-bg: var(--mlt-dark-table-bg);
+  --mlt-table-row-hover: var(--mlt-dark-table-row-hover);
+  --mlt-table-row-alt: var(--mlt-dark-table-row-alt);
+  --mlt-border: var(--mlt-dark-border);
+  --mlt-border-light: var(--mlt-dark-border-light);
+  --mlt-text-primary: var(--mlt-dark-text-primary);
+  --mlt-text-secondary: var(--mlt-dark-text-secondary);
+  --mlt-shadow: var(--mlt-dark-shadow);
+}
+
+/* Override Mantine default backgrounds */
+[data-mantine-color-scheme='light'] .mantine-AppShell-main {
+  background-color: var(--mlt-main-bg) !important;
+}
+
+[data-mantine-color-scheme='dark'] .mantine-AppShell-main {
+  background-color: var(--mlt-main-bg) !important;
+}
+
+[data-mantine-color-scheme='light'] .mantine-AppShell-navbar {
+  background-color: var(--mlt-sidebar-bg) !important;
+  border-right: 1px solid var(--mlt-border) !important;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-mantine-color-scheme='dark'] .mantine-AppShell-navbar {
+  background-color: var(--mlt-sidebar-bg) !important;
+  border-right: 1px solid var(--mlt-border) !important;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-mantine-color-scheme='light'] .mantine-AppShell-header {
+  background-color: var(--mlt-header-bg) !important;
+  border-bottom: 1px solid var(--mlt-border) !important;
+}
+
+[data-mantine-color-scheme='dark'] .mantine-AppShell-header {
+  background-color: var(--mlt-header-bg) !important;
+  border-bottom: 1px solid var(--mlt-border) !important;
+}
+
+/* Card styling with custom colors */
+.mantine-Card-root {
+  background-color: var(--mlt-card-bg) !important;
+  border: 1px solid var(--mlt-border-light) !important;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease !important;
+}
+
+/* Light theme cards */
+[data-mantine-color-scheme='light'] .mantine-Card-root {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-mantine-color-scheme='light'] .mantine-Card-root:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Dark theme cards - enhanced floating effect */
+[data-mantine-color-scheme='dark'] .mantine-Card-root {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-mantine-color-scheme='dark'] .mantine-Card-root:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Table styling with custom colors */
+.mantine-Table-root {
+  background-color: var(--mlt-table-bg) !important;
+}
+
+.mantine-Table-tr {
+  border-bottom: 1px solid var(--mlt-border-light) !important;
+}
+
+.mantine-Table-tr:nth-of-type(even) {
+  background-color: var(--mlt-table-row-alt) !important;
+}
+
+.mantine-Table-tr:hover {
+  background-color: var(--mlt-table-row-hover) !important;
+}
+
+.mantine-Table-th {
+  background-color: var(--mlt-card-bg) !important;
+  border-bottom: 2px solid var(--mlt-border) !important;
+  color: var(--mlt-text-primary) !important;
+  font-weight: 600 !important;
+}
+
+.mantine-Table-td {
+  border-bottom: 1px solid var(--mlt-border-light) !important;
+  color: var(--mlt-text-primary) !important;
+}
+
+/* Global styles for MLT Admin */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family:
+    Inter,
+    'SF Pro Display',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    'Noto Sans',
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol',
+    'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Custom scrollbar with theme colors */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--mlt-border-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mlt-border);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mlt-text-secondary);
+}
+
+/* Dark theme scrollbar */
+[data-mantine-color-scheme='dark'] ::-webkit-scrollbar-track {
+  background: var(--mlt-border-light);
+}
+
+[data-mantine-color-scheme='dark'] ::-webkit-scrollbar-thumb {
+  background: var(--mlt-border);
+}
+
+[data-mantine-color-scheme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: var(--mlt-text-secondary);
+}
+
+/* Custom utility classes */
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Animation utilities */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Remove default button styles */
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* Consistent focus styles */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--mantine-color-blue-5);
+  outline-offset: 2px;
+}
+
+/* Font fallback styles */
+.font-fallback {
+  letter-spacing: -0.01em;
+}
+
+.font-inter {
+  letter-spacing: -0.02em;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+/* System-specific font optimizations */
+@supports (-webkit-appearance: none) {
+  .font-fallback {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Ensure consistent font rendering across browsers */
+* {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Theme-aware table row styles for Job Management */
+.expanded-group-row {
+  background-color: var(--mantine-color-blue-0) !important;
+  transition: background-color 0.2s ease;
+}
+
+.expanded-order-row {
+  background-color: var(--mantine-color-gray-0) !important;
+  transition: background-color 0.2s ease;
+}
+
+/* Dark theme styles */
+[data-mantine-color-scheme='dark'] .expanded-group-row {
+  background-color: var(--mantine-color-dark-6) !important;
+}
+
+[data-mantine-color-scheme='dark'] .expanded-order-row {
+  background-color: var(--mantine-color-dark-7) !important;
+}
+
+/* Hover effects for table rows */
+.expanded-group-row:hover {
+  background-color: var(--mantine-color-blue-1) !important;
+}
+
+.expanded-order-row:hover {
+  background-color: var(--mantine-color-gray-1) !important;
+}
+
+/* Dark theme hover effects */
+[data-mantine-color-scheme='dark'] .expanded-group-row:hover {
+  background-color: var(--mantine-color-dark-5) !important;
+}
+
+[data-mantine-color-scheme='dark'] .expanded-order-row:hover {
+  background-color: var(--mlt-table-row-hover) !important;
+}
+
+/* Consistent button spacing and interaction */
+.mantine-Button-root {
+  transition: all 0.2s ease;
+}
+
+.mantine-ActionIcon-root {
+  transition: all 0.2s ease;
+}
+
+/* Ensure proper text contrast in all themes */
+.mantine-Text-root {
+  color: var(--mantine-color-text);
+}
+
+/* Consistent loading and skeleton styles */
+.mantine-Skeleton-root {
+  border-radius: var(--mantine-radius-md);
+}
+
+/* Enhanced mobile optimization for better touch targets and consistency */
+@media (max-width: 768px) {
+  .mantine-Button-root {
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 14px; /* Consistent mobile button text */
+  }
+
+  .mantine-ActionIcon-root {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .mantine-Menu-item {
+    min-height: 48px;
+    padding: 12px 16px;
+  }
+
+  /* Consistent mobile container padding */
+  .mantine-Container-root {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Consistent mobile stack and group spacing */
+  .mantine-Stack-root {
+    gap: 12px; /* Standard mobile stack gap */
+  }
+
+  .mantine-Group-root {
+    gap: 8px; /* Standard mobile group gap */
+  }
+
+  /* Consistent mobile text sizing */
+  .mantine-Title-root[data-order='2'] {
+    font-size: 1.375rem !important; /* 22px - consistent mobile title size */
+    line-height: 1.3 !important;
+  }
+
+  .mantine-Text-root[data-size='sm'] {
+    font-size: 14px !important; /* Consistent mobile text */
+  }
+
+  .mantine-Text-root[data-size='xs'] {
+    font-size: 12px !important; /* Consistent mobile caption text */
+  }
+
+  /* Consistent mobile badge sizing */
+  .mantine-Badge-root {
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+  }
+
+  /* Better mobile card padding */
+  .mantine-Card-root {
+    padding: 16px !important;
+  }
+
+  /* Improved mobile paper component padding */
+  .mantine-Paper-root {
+    padding: 12px !important;
+  }
+}
+
+/* Consistent notification styles */
+.mantine-Notification-root {
+  border-radius: var(--mantine-radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+[data-mantine-color-scheme='dark'] .mantine-Notification-root {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Smooth page transitions */
+.mantine-AppShell-main {
+  transition: padding 0.2s ease;
+}
+
+/* Improved table responsive design */
+@media (max-width: 768px) {
+  .mantine-Table-root {
+    font-size: 0.875rem;
+  }
+
+  .mantine-Table-th,
+  .mantine-Table-td {
+    padding: 8px 12px;
+  }
+}
+
+/* Perfect loading state consistency */
+.mantine-Loader-root {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+/* Enhanced modal consistency */
+.mantine-Modal-content {
+  background-color: var(--mlt-card-bg) !important;
+  border: 1px solid var(--mlt-border) !important;
+  border-radius: var(--mantine-radius-md);
+  box-shadow:
+    0 20px 25px var(--mlt-shadow),
+    0 10px 10px var(--mlt-shadow) !important;
+}
+
+/* Input and form element styling */
+.mantine-TextInput-input,
+.mantine-Textarea-input,
+.mantine-Select-input,
+.mantine-NumberInput-input,
+.mantine-PasswordInput-input {
+  background-color: var(--mlt-card-bg) !important;
+  border: 1px solid var(--mlt-border) !important;
+  color: var(--mlt-text-primary) !important;
+}
+
+.mantine-TextInput-input:focus,
+.mantine-Textarea-input:focus,
+.mantine-Select-input:focus,
+.mantine-NumberInput-input:focus,
+.mantine-PasswordInput-input:focus {
+  border-color: var(--mantine-color-blue-5) !important;
+  box-shadow: 0 0 0 1px var(--mantine-color-blue-5) !important;
+}
+
+/* Dropdown and select styling */
+.mantine-Select-dropdown,
+.mantine-Menu-dropdown {
+  background-color: var(--mlt-card-bg) !important;
+  border: 1px solid var(--mlt-border) !important;
+  box-shadow: 0 4px 12px var(--mlt-shadow) !important;
+}
+
+.mantine-Select-option,
+.mantine-Menu-item {
+  color: var(--mlt-text-primary) !important;
+}
+
+.mantine-Select-option:hover,
+.mantine-Menu-item:hover {
+  background-color: var(--mlt-table-row-hover) !important;
+}
+
+/* Button variations */
+.mantine-Button-root[data-variant='light'] {
+  background-color: var(--mlt-table-row-alt) !important;
+  color: var(--mlt-text-primary) !important;
+  border: 1px solid var(--mlt-border-light) !important;
+}
+
+.mantine-Button-root[data-variant='outline'] {
+  background-color: transparent !important;
+  color: var(--mlt-text-primary) !important;
+  border: 1px solid var(--mlt-border) !important;
+}
+
+.mantine-Button-root[data-variant='outline']:hover {
+  background-color: var(--mlt-table-row-hover) !important;
+}
+
+/* Paper and Container backgrounds */
+.mantine-Paper-root {
+  background-color: var(--mlt-card-bg) !important;
+  border: 1px solid var(--mlt-border-light) !important;
+}
+
+/* Skeleton loading with theme colors */
+.mantine-Skeleton-root {
+  background-color: var(--mlt-table-row-alt) !important;
+}
+
+/* Enhanced padding for images in table cells - universal browser support */
+.mantine-Table-td:first-child {
+  padding: 16px 20px !important;
+}
+
+/* Ensure proper spacing around SquareImage components */
+.mantine-Table-td:first-child > div {
+  margin: 6px 0 !important;
+}
+
+/* Additional vertical spacing for image containers */
+.mantine-Table-td:first-child .mantine-Image-root {
+  margin: 2px 0 !important;
+}
+
+/* Mobile responsive padding for table images */
+@media (max-width: 768px) {
+  .mantine-Table-td:first-child {
+    padding: 12px 16px !important;
+  }
+
+  .mantine-Table-td:first-child > div {
+    margin: 4px 0 !important;
+  }
+}
+
+/* Additional padding for all table cells for better visual spacing */
+.mantine-Table-td {
+  padding: 12px 16px !important;
+}
+
+@media (max-width: 768px) {
+  .mantine-Table-td {
+    padding: 8px 12px !important;
+  }
+}

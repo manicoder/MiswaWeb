@@ -25,10 +25,11 @@ const AdminLogin: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    const success = await login(username, password);
-    
-    if (success) {
+    const result = await login(username, password);
+    if (result.success) {
       navigate('/admin');
+    } else if (result.requires2fa) {
+      navigate('/admin/2fa', { state: { username } });
     }
     
     setIsLoading(false);

@@ -12,6 +12,7 @@ import LinksMyLittleTales from './pages/LinksMyLittleTales';
 import UPIPay from './pages/UPIPay';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminLogin from './pages/admin/AdminLogin';
+import AdminTwoFactor from './pages/admin/AdminTwoFactor';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from './components/ui/sonner';
@@ -33,6 +34,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/pay" element={<UPIPay />} />
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/2fa" element={<AdminTwoFactor />} />
             <Route
               path="/admin/*"
               element={

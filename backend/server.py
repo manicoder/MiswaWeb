@@ -19,6 +19,7 @@ import csv
 import shutil
 from jose import JWTError, jwt
 import bcrypt
+import pyotp
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -308,6 +309,9 @@ class AdminUser(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     username: str
     password_hash: str
+    is_2fa_enabled: bool = False
+    totp_secret: Optional[str] = None
+    backup_codes: List[str] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class AdminLogin(BaseModel):
@@ -378,7 +382,7 @@ async def get_current_admin(credentials: HTTPAuthorizationCredentials = Depends(
 
 # ==================== AUTHENTICATION ROUTES ====================
 
-@api_router.post("/admin/login", response_model=Token)
+@api_router.post("/admin/login")
 async def admin_login(login_data: AdminLogin):
     admin = await db.admin_users.find_one({"username": login_data.username}, {"_id": 0})
     if not admin:
@@ -392,12 +396,100 @@ async def admin_login(login_data: AdminLogin):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password"
         )
-    
+
+    # If 2FA is enabled, return a temporary token and require OTP verification
+    if admin.get("is_2fa_enabled"):
+        temp_token_expires = timedelta(minutes=5)
+        temp_token = create_access_token(
+            data={"sub": login_data.username, "twofa": True, "stage": "pending_otp"},
+            expires_delta=temp_token_expires
+        )
+        return {
+            "requires_2fa": True,
+            "temp_token": temp_token,
+            "message": "Two-factor authentication required"
+        }
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": login_data.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+class TwoFAVerifyRequest(BaseModel):
+    code: str
+    temp_token: str
+
+@api_router.post("/admin/2fa/verify")
+async def verify_two_factor(payload: TwoFAVerifyRequest):
+    # Validate temporary token
+    try:
+        temp_payload = jwt.decode(payload.temp_token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = temp_payload.get("sub")
+        twofa_flag = temp_payload.get("twofa")
+        stage = temp_payload.get("stage")
+        if not username or not twofa_flag or stage != "pending_otp":
+            raise HTTPException(status_code=401, detail="Invalid 2FA token")
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired 2FA token")
+
+    admin = await db.admin_users.find_one({"username": username}, {"_id": 0})
+    if not admin or not admin.get("is_2fa_enabled") or not admin.get("totp_secret"):
+        raise HTTPException(status_code=401, detail="2FA not configured for this account")
+
+    totp = pyotp.TOTP(admin["totp_secret"])
+    if not totp.verify(payload.code, valid_window=1):
+        raise HTTPException(status_code=401, detail="Invalid 2FA code")
+
+    # Issue normal access token
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": username}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+class TwoFASetupInitResponse(BaseModel):
+    otpauth_url: str
+    secret: str
+
+@api_router.post("/admin/2fa/setup-initiate", response_model=TwoFASetupInitResponse)
+async def initiate_two_factor_setup(current_admin: dict = Depends(get_current_admin)):
+    # Generate a new secret and store it temporarily on the account
+    secret = pyotp.random_base32()
+    issuer = "Miswa"
+    account_name = current_admin.get("username", "admin")
+    otpauth_url = pyotp.totp.TOTP(secret).provisioning_uri(name=account_name, issuer_name=issuer)
+
+    await db.admin_users.update_one(
+        {"username": account_name},
+        {"$set": {"totp_secret": secret}}
+    )
+
+    return {"otpauth_url": otpauth_url, "secret": secret}
+
+class TwoFAEnableRequest(BaseModel):
+    code: str
+
+@api_router.post("/admin/2fa/enable")
+async def enable_two_factor(payload: TwoFAEnableRequest, current_admin: dict = Depends(get_current_admin)):
+    # Verify the code against the stored secret, then enable 2FA
+    admin = await db.admin_users.find_one({"username": current_admin.get("username")}, {"_id": 0})
+    if not admin or not admin.get("totp_secret"):
+        raise HTTPException(status_code=400, detail="2FA setup not initiated")
+
+    totp = pyotp.TOTP(admin["totp_secret"])
+    if not totp.verify(payload.code, valid_window=1):
+        raise HTTPException(status_code=400, detail="Invalid verification code")
+
+    await db.admin_users.update_one(
+        {"username": current_admin.get("username")},
+        {"$set": {"is_2fa_enabled": True}}
+    )
+    return {"message": "Two-factor authentication enabled"}
+
+@api_router.get("/admin/2fa/status")
+async def two_factor_status(current_admin: dict = Depends(get_current_admin)):
+    return {"is_2fa_enabled": bool(current_admin.get("is_2fa_enabled"))}
 
 @api_router.get("/admin/me")
 async def get_current_admin_info(current_admin: dict = Depends(get_current_admin)):

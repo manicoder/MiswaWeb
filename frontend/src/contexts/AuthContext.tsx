@@ -6,7 +6,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: AdminUser | null;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<{ success: boolean; requires2fa?: boolean }>;
   logout: () => void;
 }
 
@@ -46,25 +46,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (username: string, password: string): Promise<{ success: boolean; requires2fa?: boolean }> => {
     try {
       const response = await adminLogin({ username, password });
-      const { access_token } = response.data;
-      
+      if (response.data.requires_2fa && response.data.temp_token) {
+        // Store temp token for next step
+        sessionStorage.setItem('admin_temp_token', response.data.temp_token);
+        toast.message('Two-factor code required');
+        return { success: false, requires2fa: true };
+      }
+      const { access_token } = response.data as any;
+      if (!access_token) {
+        throw new Error('Invalid login response');
+      }
       localStorage.setItem(TOKEN_KEY, access_token);
       setAuthToken(access_token);
-      
-      // Get user info
-      const userResponse = await getCurrentAdmin();
-      setUser(userResponse.data);
+      // Try to fetch user info, but don't block login if it fails
+      try {
+        const userResponse = await getCurrentAdmin();
+        setUser(userResponse.data);
+      } catch (e) {
+        // Non-fatal: keep token and proceed
+      }
       setIsAuthenticated(true);
-      
       toast.success('Login successful');
-      return true;
+      return { success: true };
     } catch (error: any) {
       const errorMessage = error.response?.data?.detail || 'Login failed';
       toast.error(errorMessage);
-      return false;
+      return { success: false };
     }
   };
 
