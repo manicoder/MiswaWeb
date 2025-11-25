@@ -43,7 +43,7 @@ const getBasename = () => {
   // Check if we're running on miswainternational.com
   if (window.location.hostname === 'miswainternational.com' || 
       window.location.hostname.includes('miswainternational.com')) {
-    return '/admin';
+    return '/mltadmin';
   }
   // For development and other environments, use root
   return '/';

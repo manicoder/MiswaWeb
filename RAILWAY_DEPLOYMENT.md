@@ -5,7 +5,7 @@ This guide explains how to deploy the MLT Admin application to Railway with the 
 ## Overview
 
 The application will be accessible at:
-- **Frontend**: `https://miswainternational.com/admin`
+- **Frontend**: `https://miswainternational.com/mltadmin`
 - **Backend API**: Configured via Railway environment variables
 
 ## Prerequisites
@@ -104,11 +104,11 @@ VITE_API_URL=https://your-backend-service.railway.app/api
 
 1. Push your changes to the repository
 2. Railway will automatically build and deploy both services
-3. The frontend will be accessible at `https://miswainternational.com/admin`
+3. The frontend will be accessible at `https://miswainternational.com/mltadmin`
 
 ## Verification
 
-1. Visit `https://miswainternational.com/admin`
+1. Visit `https://miswainternational.com/mltadmin`
 2. You should see the login page
 3. Check browser console for any CORS or routing errors
 4. Verify API calls are going to the correct backend URL
